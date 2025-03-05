@@ -4,7 +4,7 @@
 
 Camera::Camera(unsigned int w, unsigned int h)
     : fovy(55), aspect(w / (float)h), nearClip(0.1), farClip(1000),
-      eye(0,0,10), target(0,0,0),
+      eye(0,0,30), target(0,0,0),
       forward(0,0,-1), up(0,1,0), right(glm::cross(forward, up))
 {}
 

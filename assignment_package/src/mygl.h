@@ -5,12 +5,15 @@
 #include <utils.h>
 #include <shaderprogram.h>
 #include <scene/squareplane.h>
+#include <cloth.h>
+#include <SoftBodyBox.h>
 #include "camera.h"
 
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLShaderProgram>
 #include <QTimer>
 
+class Cloth;
 
 class MyGL
     : public OpenGLContext
@@ -21,6 +24,9 @@ private:
     float currTime;
 
     SquarePlane m_geomSquare;// The instance of a unit cylinder we can use to render any cylinder
+    std::unique_ptr<Cloth> m_cloth;// The instance of the cloth
+    std::unique_ptr<SoftBodyBox> m_box;// The instance of the cloth
+
     ShaderProgram m_progLambert;// A shader program that uses lambertian reflection
     ShaderProgram m_progFlat;// A shader program that uses "flat" reflection (no shadowing at all)
 
@@ -33,6 +39,8 @@ private:
     // in the scene.
     glm::vec2 m_mousePosPrev;
 
+    int objType;
+    Particle* selectedParticle;
 
 public:
     explicit MyGL(QWidget *parent = nullptr);
@@ -41,12 +49,21 @@ public:
     void initializeGL();
     void resizeGL(int w, int h);
     void paintGL();
+    void resetCloth();
+    void dropCorner();
+    void dropCloth();
+    void setDrawType(int index);
+    void setObjType(int index);
+    void changeCloth(bool changeW, int width, bool changeH, int height, bool changeS, float spacing);
+    void changeBox(bool changeW, int width, bool changeH, int height, bool changeD, int depth, bool changeS, float spacing);
 
 protected:
     void keyPressEvent(QKeyEvent *e);
     void mousePressEvent(QMouseEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent* e);
     void wheelEvent(QWheelEvent *e);
+    void screenToWorldRay(int mouseX, int mouseY, glm::vec3& rayOrigin, glm::vec3& rayDirection);
 
 public slots:
     void tick();

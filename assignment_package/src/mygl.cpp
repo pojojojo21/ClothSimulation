@@ -10,12 +10,18 @@ MyGL::MyGL(QWidget *parent)
     : OpenGLContext(parent),
       timer(), currTime(0.),
       m_geomSquare(this),
+      m_cloth(nullptr),
+      m_box(nullptr),
       m_progLambert(this), m_progFlat(this),
       vao(),
       m_camera(width(), height()),
-      m_mousePosPrev()
+      m_mousePosPrev(),
+      objType(0)
 {
     setFocusPolicy(Qt::StrongFocus);
+
+    m_cloth = std::make_unique<Cloth>(this, 10, 10, 1.2f, glm::vec3(0, 0, 0));
+    m_box = std::make_unique<SoftBodyBox>(this, 10, 10, 10, 1.2f, glm::vec3(0, 0, 0));
 
     connect(&timer, SIGNAL(timeout()), this, SLOT(tick()));
     // Tell the timer to redraw 60 times per second
@@ -55,6 +61,12 @@ void MyGL::initializeGL()
     //Create the instances of Cylinder and Sphere.
     m_geomSquare.initializeAndBufferGeometryData();
 
+    //Create the cloth instance
+    m_cloth->initializeAndBufferGeometryData();
+
+    //Create the box instance
+    m_box->initializeAndBufferGeometryData();
+
     // Create and set up the diffuse shader
     m_progLambert.createAndCompileShaderProgram("lambert.vert.glsl", "lambert.frag.glsl");
     // Create and set up the flat lighting shader
@@ -92,34 +104,100 @@ void MyGL::paintGL()
     m_progFlat.setUnifMat4("u_ViewProj", viewproj);
     m_progLambert.setUnifVec3("u_CamPos", m_camera.eye);
     m_progFlat.setUnifMat4("u_Model", glm::mat4(1.f));
+    glm::mat4 model = glm::mat4(1.f);
+    m_progLambert.setUnifMat4("u_Model", model);
+    m_progLambert.setUnifMat4("u_ModelInvTr", glm::inverse(glm::transpose(model)));
 
     //Create a model matrix. This one rotates the square by PI/4 radians then translates it by <-2,0,0>.
     //Note that we have to transpose the model matrix before passing it to the shader
     //This is because OpenGL expects column-major matrices, but you've
     //implemented row-major matrices.
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(-2,0,0)) * glm::rotate(glm::mat4(), 0.25f * 3.14159f, glm::vec3(0,1,0));
-    //Send the geometry's transformation matrix to the shader
-    m_progLambert.setUnifMat4("u_Model", model);
-    m_progLambert.setUnifMat4("u_ModelInvTr", glm::inverse(glm::transpose(model)));
-    //Draw the example sphere using our lambert shader
-    m_progLambert.draw(m_geomSquare);
+    //glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(-2,0,0)) * glm::rotate(glm::mat4(), 0.25f * 3.14159f, glm::vec3(0,1,0));
+    ////Send the geometry's transformation matrix to the shader
+    //m_progLambert.setUnifMat4("u_Model", model);
+    //m_progLambert.setUnifMat4("u_ModelInvTr", glm::inverse(glm::transpose(model)));
+    ////Draw the example sphere using our lambert shader
+    //m_progLambert.draw(m_geomSquare);
 
-    //Now do the same to render the cylinder
-    //We've rotated it -45 degrees on the Z axis, then translated it to the point <2,2,0>
-    model = glm::translate(glm::mat4(1.0f), glm::vec3(2,2,0)) * glm::rotate(glm::mat4(1.0f), glm::radians(-45.0f), glm::vec3(0,0,1));
-    m_progLambert.setUnifMat4("u_Model", model);
-    m_progLambert.setUnifMat4("u_ModelInvTr", glm::inverse(glm::transpose(model)));
-    m_progLambert.draw(m_geomSquare);
+    ////Now do the same to render the cylinder
+    ////We've rotated it -45 degrees on the Z axis, then translated it to the point <2,2,0>
+    //model = glm::translate(glm::mat4(1.0f), glm::vec3(2,2,0)) * glm::rotate(glm::mat4(1.0f), glm::radians(-45.0f), glm::vec3(0,0,1));
+    //m_progLambert.setUnifMat4("u_Model", model);
+    //m_progLambert.setUnifMat4("u_ModelInvTr", glm::inverse(glm::transpose(model)));
+    //m_progLambert.draw(m_geomSquare);
+
+    // Update cloth simulation
+    switch (objType)
+    {
+    case 0:
+        m_cloth->update(1.0f / 60.0f); // Assuming 60 FPS for deltaTime
+        m_cloth->updatePositionBuffer(); // Update position buffer with the latest particle positions
+
+        // Draw the cloth
+        switch (m_cloth->drawType)
+        {
+        case 0:
+            m_progFlat.draw(*m_cloth);
+            break;
+        case 1:
+            m_progFlat.draw(*m_cloth);
+            break;
+        case 2:
+            m_progLambert.draw(*m_cloth);
+            break;
+        }
+
+        break;
+    case 1:
+        m_box->update(1.0f / 60.0f); // Assuming 60 FPS for deltaTime
+        m_box->updatePositionBuffer(); // Update position buffer with the latest particle positions
+
+        // Draw the cloth
+        /*switch (m_box->drawType)
+        {
+        case 0:
+            m_progFlat.draw(*m_box);
+            break;
+        case 1:
+            m_progFlat.draw(*m_box);
+            break;
+        case 2:
+            m_progLambert.draw(*m_box);
+            break;
+        }*/
+        m_progFlat.draw(*m_box);
+
+        break;
+    }
+
+
+    
 }
 
 void MyGL::keyPressEvent(QKeyEvent *e) {
     ;
 }
 
-void MyGL::mousePressEvent(QMouseEvent *e) {
-    if(e->buttons() & (Qt::LeftButton | Qt::RightButton))
+void MyGL::mousePressEvent(QMouseEvent *e)
+{
+    if(e->buttons() & Qt::RightButton)
     {
         m_mousePosPrev = glm::vec2(e->pos().x(), e->pos().y());
+    }
+    else if (e->buttons() & Qt::LeftButton)
+    {
+        m_mousePosPrev = glm::vec2(e->pos().x(), e->pos().y());
+
+        // Convert screen coordinates to world ray
+        glm::vec3 rayOrigin, rayDirection;
+        screenToWorldRay(e->pos().x(), e->pos().y(), rayOrigin, rayDirection);
+
+        // Find closest particle
+        selectedParticle = m_cloth->findClosestParticle(rayOrigin, rayDirection);
+
+        if (selectedParticle) {
+            selectedParticle->isFixed = true; // Lock particle in place
+        }
     }
 }
 
@@ -127,6 +205,16 @@ void MyGL::mouseMoveEvent(QMouseEvent *e) {
     glm::vec2 pos(e->pos().x(), e->pos().y());
     if(e->buttons() & Qt::LeftButton)
     {
+        // if particle selected move particle
+        if (selectedParticle) {
+            glm::vec3 rayOrigin, rayDirection;
+            screenToWorldRay(e->pos().x(), e->pos().y(), rayOrigin, rayDirection);
+
+            // Move the particle along the ray direction
+            selectedParticle->position = rayOrigin + rayDirection * 2.0f;
+            return;
+        }
+
         // Rotation
         glm::vec2 diff = 0.2f * (pos - m_mousePosPrev);
         m_mousePosPrev = pos;
@@ -143,11 +231,119 @@ void MyGL::mouseMoveEvent(QMouseEvent *e) {
     }
 }
 
+void MyGL::mouseReleaseEvent(QMouseEvent* e) {
+    if (selectedParticle) {
+        selectedParticle->isFixed = false;  // Release particle
+        selectedParticle = nullptr;
+    }
+}
+
+
 void MyGL::wheelEvent(QWheelEvent *e) {
     m_camera.Zoom(e->angleDelta().y() * 0.001f);
+}
+
+void MyGL::resetCloth()
+{
+    m_cloth->resetCloth(glm::vec3(0, 0, 0));
+}
+
+void MyGL::dropCorner()
+{
+    m_cloth->dropCorner();
+}
+
+void MyGL::dropCloth()
+{
+    m_cloth->dropCloth();
 }
 
 void MyGL::tick() {
     ++currTime;
     update();
+}
+
+void MyGL::setDrawType(int index)
+{
+    this->m_cloth->drawType = index;
+    this->m_cloth->initializeAndBufferGeometryData();
+
+    this->m_box->drawType = index;
+    this->m_box->initializeAndBufferGeometryData();
+}
+
+void MyGL::setObjType(int index)
+{
+    this->objType = index;
+}
+
+void MyGL::changeCloth(bool changeW, int width, bool changeH, int height, bool changeS, float spacing)
+{
+    int w = m_cloth->width;
+    int h = m_cloth->height;
+    float s = m_cloth->spacing;
+    int dT = m_cloth->drawType;
+
+    if (changeW)
+    {
+        w = width;
+    }
+    if (changeH)
+    {
+        h = height;
+    }
+    if (changeS)
+    {
+        s = spacing;
+    }
+    m_cloth = std::make_unique<Cloth>(this, w, h, s, glm::vec3(0, 0, 0));
+    m_cloth->drawType = dT;
+    this->m_cloth->initializeAndBufferGeometryData();
+}
+
+void MyGL::changeBox(bool changeW, int width, bool changeH, int height, bool changeD, int depth, bool changeS, float spacing)
+{
+    int w = m_box->width;
+    int h = m_box->height;
+    int d = m_box->depth;
+    float s = m_box->spacing;
+    int dT = m_box->drawType;
+
+    if (changeW)
+    {
+        w = width;
+    }
+    if (changeH)
+    {
+        h = height;
+    }
+    if (changeD)
+    {
+        d = depth;
+    }
+    if (changeS)
+    {
+        s = spacing;
+    }
+    m_box = std::make_unique<SoftBodyBox>(this, w, h, d, s, glm::vec3(0, 0, 0));
+    m_box->drawType = dT;
+    this->m_box->initializeAndBufferGeometryData();
+}
+
+void MyGL::screenToWorldRay(int mouseX, int mouseY, glm::vec3& rayOrigin, glm::vec3& rayDirection) {
+    glm::mat4 invVP = glm::inverse(m_camera.getViewProj());
+
+    float x = (2.0f * mouseX) / width() - 1.0f;
+    float y = 1.0f - (2.0f * mouseY) / height();  // Invert Y for OpenGL
+    glm::vec4 nearPoint(x, y, -1.0f, 1.0f);  // Near plane
+    glm::vec4 farPoint(x, y, 1.0f, 1.0f);   // Far plane
+
+    glm::vec4 worldNear = invVP * nearPoint;
+    glm::vec4 worldFar = invVP * farPoint;
+
+    worldNear /= worldNear.w;
+    worldFar /= worldFar.w;
+
+    rayOrigin = glm::vec3(worldNear);
+    rayDirection = glm::normalize(glm::vec3(worldFar - worldNear));
 }

@@ -40,4 +40,5 @@ void main()
 
         // Compute final shaded color
         out_Col = diffuseColor * lightIntensity;
+        //out_Col = fs_Nor;
 }
