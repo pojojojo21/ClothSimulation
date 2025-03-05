@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>OpenGLDemo</string>
+   <string>ClothSimDemo</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="MyGL" name="mygl">
@@ -24,291 +24,193 @@
      </rect>
     </property>
    </widget>
-   <widget class="QListWidget" name="vertsListWidget">
+   <widget class="QPushButton" name="resetClothButton">
     <property name="geometry">
      <rect>
-      <x>640</x>
-      <y>10</y>
-      <width>111</width>
-      <height>261</height>
+      <x>680</x>
+      <y>30</y>
+      <width>100</width>
+      <height>30</height>
      </rect>
     </property>
+    <property name="text">
+     <string>Reset Cloth</string>
+    </property>
    </widget>
-   <widget class="QListWidget" name="halfEdgesListWidget">
+   <widget class="QPushButton" name="dropCornerButton">
+    <property name="geometry">
+     <rect>
+      <x>800</x>
+      <y>30</y>
+      <width>100</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Drop Corner</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="dropClothButton">
+    <property name="geometry">
+     <rect>
+      <x>930</x>
+      <y>30</y>
+      <width>100</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Drop Cloth</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="drawTypeSelection">
+    <property name="geometry">
+     <rect>
+      <x>750</x>
+      <y>100</y>
+      <width>72</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>Particle</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Spring</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Lambert</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QComboBox" name="objTypeSelection">
+    <property name="geometry">
+     <rect>
+      <x>880</x>
+      <y>100</y>
+      <width>72</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>Cloth</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Box</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QSpinBox" name="Spin_W">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>730</x>
+      <y>140</y>
+      <width>42</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>2</number>
+    </property>
+    <property name="maximum">
+     <number>500</number>
+    </property>
+    <property name="value">
+     <number>10</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Label_Width">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>140</y>
+      <width>49</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Width</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Label_Height">
+    <property name="geometry">
+     <rect>
+      <x>850</x>
+      <y>140</y>
+      <width>49</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Height</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="Spin_H">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>910</x>
+      <y>140</y>
+      <width>42</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>2</number>
+    </property>
+    <property name="maximum">
+     <number>500</number>
+    </property>
+    <property name="value">
+     <number>10</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Label_SpringSize">
     <property name="geometry">
      <rect>
       <x>770</x>
-      <y>10</y>
-      <width>111</width>
-      <height>261</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QListWidget" name="facesListWidget">
-    <property name="geometry">
-     <rect>
-      <x>900</x>
-      <y>10</y>
-      <width>111</width>
-      <height>261</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>640</x>
-      <y>280</y>
-      <width>111</width>
+      <y>190</y>
+      <width>61</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>Vertices</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
+     <string>Spring Size</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_2">
+   <widget class="QDoubleSpinBox" name="Spin_SS">
     <property name="geometry">
      <rect>
-      <x>770</x>
-      <y>280</y>
-      <width>111</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Half-Edges</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>900</x>
-      <y>280</y>
-      <width>111</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Faces</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
-   <widget class="QDoubleSpinBox" name="vertPosXSpinBox">
-    <property name="geometry">
-     <rect>
-      <x>720</x>
-      <y>320</y>
+      <x>850</x>
+      <y>190</y>
       <width>62</width>
       <height>22</height>
      </rect>
     </property>
     <property name="minimum">
-     <double>-99.989999999999995</double>
-    </property>
-   </widget>
-   <widget class="QDoubleSpinBox" name="vertPosYSpinBox">
-    <property name="geometry">
-     <rect>
-      <x>800</x>
-      <y>320</y>
-      <width>62</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="minimum">
-     <double>-99.989999999999995</double>
-    </property>
-   </widget>
-   <widget class="QDoubleSpinBox" name="vertPosZSpinBox">
-    <property name="geometry">
-     <rect>
-      <x>880</x>
-      <y>320</y>
-      <width>62</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="minimum">
-     <double>-99.989999999999995</double>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_4">
-    <property name="geometry">
-     <rect>
-      <x>640</x>
-      <y>320</y>
-      <width>71</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Vertex Position</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_5">
-    <property name="geometry">
-     <rect>
-      <x>720</x>
-      <y>340</y>
-      <width>61</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>X</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_6">
-    <property name="geometry">
-     <rect>
-      <x>800</x>
-      <y>340</y>
-      <width>61</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Y</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_7">
-    <property name="geometry">
-     <rect>
-      <x>880</x>
-      <y>340</y>
-      <width>61</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Z</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_8">
-    <property name="geometry">
-     <rect>
-      <x>880</x>
-      <y>390</y>
-      <width>61</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Blue</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_9">
-    <property name="geometry">
-     <rect>
-      <x>720</x>
-      <y>390</y>
-      <width>61</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Red</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
-   <widget class="QDoubleSpinBox" name="faceBlueSpinBox">
-    <property name="geometry">
-     <rect>
-      <x>880</x>
-      <y>370</y>
-      <width>62</width>
-      <height>22</height>
-     </rect>
+     <double>0.100000000000000</double>
     </property>
     <property name="maximum">
-     <double>1.000000000000000</double>
+     <double>5.000000000000000</double>
     </property>
     <property name="singleStep">
-     <double>0.050000000000000</double>
+     <double>0.100000000000000</double>
     </property>
-   </widget>
-   <widget class="QLabel" name="label_10">
-    <property name="geometry">
-     <rect>
-      <x>640</x>
-      <y>370</y>
-      <width>71</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Face Color</string>
-    </property>
-   </widget>
-   <widget class="QDoubleSpinBox" name="faceGreenSpinBox">
-    <property name="geometry">
-     <rect>
-      <x>800</x>
-      <y>370</y>
-      <width>62</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="maximum">
-     <double>1.000000000000000</double>
-    </property>
-    <property name="singleStep">
-     <double>0.050000000000000</double>
-    </property>
-   </widget>
-   <widget class="QDoubleSpinBox" name="faceRedSpinBox">
-    <property name="geometry">
-     <rect>
-      <x>720</x>
-      <y>370</y>
-      <width>62</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="maximum">
-     <double>1.000000000000000</double>
-    </property>
-    <property name="singleStep">
-     <double>0.050000000000000</double>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_11">
-    <property name="geometry">
-     <rect>
-      <x>800</x>
-      <y>390</y>
-      <width>61</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Green</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
+    <property name="value">
+     <double>1.200000000000000</double>
     </property>
    </widget>
   </widget>
@@ -318,7 +220,7 @@
      <x>0</x>
      <y>0</y>
      <width>1057</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -326,9 +228,18 @@
      <string>File</string>
     </property>
     <addaction name="actionQuit"/>
+    <addaction name="actionReset"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
+  <action name="actionReset">
+   <property name="text">
+    <string>Reset</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
   <action name="actionQuit">
    <property name="text">
     <string>Quit</string>

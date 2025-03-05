@@ -12,12 +12,14 @@
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QComboBox>
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/QLabel>
-#include <QtWidgets/QListWidget>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QSpinBox>
 #include <QtWidgets/QWidget>
 #include "mygl.h"
 
@@ -26,30 +28,22 @@ QT_BEGIN_NAMESPACE
 class Ui_MainWindow
 {
 public:
+    QAction *actionReset;
     QAction *actionQuit;
     QAction *actionCamera_Controls;
     QWidget *centralWidget;
     MyGL *mygl;
-    QListWidget *vertsListWidget;
-    QListWidget *halfEdgesListWidget;
-    QListWidget *facesListWidget;
-    QLabel *label;
-    QLabel *label_2;
-    QLabel *label_3;
-    QDoubleSpinBox *vertPosXSpinBox;
-    QDoubleSpinBox *vertPosYSpinBox;
-    QDoubleSpinBox *vertPosZSpinBox;
-    QLabel *label_4;
-    QLabel *label_5;
-    QLabel *label_6;
-    QLabel *label_7;
-    QLabel *label_8;
-    QLabel *label_9;
-    QDoubleSpinBox *faceBlueSpinBox;
-    QLabel *label_10;
-    QDoubleSpinBox *faceGreenSpinBox;
-    QDoubleSpinBox *faceRedSpinBox;
-    QLabel *label_11;
+    QPushButton *resetClothButton;
+    QPushButton *dropCornerButton;
+    QPushButton *dropClothButton;
+    QComboBox *drawTypeSelection;
+    QComboBox *objTypeSelection;
+    QSpinBox *Spin_W;
+    QLabel *Label_Width;
+    QLabel *Label_Height;
+    QSpinBox *Spin_H;
+    QLabel *Label_SpringSize;
+    QDoubleSpinBox *Spin_SS;
     QMenuBar *menuBar;
     QMenu *menuFile;
 
@@ -58,6 +52,8 @@ public:
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName("MainWindow");
         MainWindow->resize(1057, 492);
+        actionReset = new QAction(MainWindow);
+        actionReset->setObjectName("actionReset");
         actionQuit = new QAction(MainWindow);
         actionQuit->setObjectName("actionQuit");
         actionCamera_Controls = new QAction(MainWindow);
@@ -67,94 +63,67 @@ public:
         mygl = new MyGL(centralWidget);
         mygl->setObjectName("mygl");
         mygl->setGeometry(QRect(11, 11, 618, 432));
-        vertsListWidget = new QListWidget(centralWidget);
-        vertsListWidget->setObjectName("vertsListWidget");
-        vertsListWidget->setGeometry(QRect(640, 10, 111, 261));
-        halfEdgesListWidget = new QListWidget(centralWidget);
-        halfEdgesListWidget->setObjectName("halfEdgesListWidget");
-        halfEdgesListWidget->setGeometry(QRect(770, 10, 111, 261));
-        facesListWidget = new QListWidget(centralWidget);
-        facesListWidget->setObjectName("facesListWidget");
-        facesListWidget->setGeometry(QRect(900, 10, 111, 261));
-        label = new QLabel(centralWidget);
-        label->setObjectName("label");
-        label->setGeometry(QRect(640, 280, 111, 16));
-        label->setAlignment(Qt::AlignCenter);
-        label_2 = new QLabel(centralWidget);
-        label_2->setObjectName("label_2");
-        label_2->setGeometry(QRect(770, 280, 111, 16));
-        label_2->setAlignment(Qt::AlignCenter);
-        label_3 = new QLabel(centralWidget);
-        label_3->setObjectName("label_3");
-        label_3->setGeometry(QRect(900, 280, 111, 16));
-        label_3->setAlignment(Qt::AlignCenter);
-        vertPosXSpinBox = new QDoubleSpinBox(centralWidget);
-        vertPosXSpinBox->setObjectName("vertPosXSpinBox");
-        vertPosXSpinBox->setGeometry(QRect(720, 320, 62, 22));
-        vertPosXSpinBox->setMinimum(-99.989999999999995);
-        vertPosYSpinBox = new QDoubleSpinBox(centralWidget);
-        vertPosYSpinBox->setObjectName("vertPosYSpinBox");
-        vertPosYSpinBox->setGeometry(QRect(800, 320, 62, 22));
-        vertPosYSpinBox->setMinimum(-99.989999999999995);
-        vertPosZSpinBox = new QDoubleSpinBox(centralWidget);
-        vertPosZSpinBox->setObjectName("vertPosZSpinBox");
-        vertPosZSpinBox->setGeometry(QRect(880, 320, 62, 22));
-        vertPosZSpinBox->setMinimum(-99.989999999999995);
-        label_4 = new QLabel(centralWidget);
-        label_4->setObjectName("label_4");
-        label_4->setGeometry(QRect(640, 320, 71, 21));
-        label_5 = new QLabel(centralWidget);
-        label_5->setObjectName("label_5");
-        label_5->setGeometry(QRect(720, 340, 61, 16));
-        label_5->setAlignment(Qt::AlignCenter);
-        label_6 = new QLabel(centralWidget);
-        label_6->setObjectName("label_6");
-        label_6->setGeometry(QRect(800, 340, 61, 16));
-        label_6->setAlignment(Qt::AlignCenter);
-        label_7 = new QLabel(centralWidget);
-        label_7->setObjectName("label_7");
-        label_7->setGeometry(QRect(880, 340, 61, 16));
-        label_7->setAlignment(Qt::AlignCenter);
-        label_8 = new QLabel(centralWidget);
-        label_8->setObjectName("label_8");
-        label_8->setGeometry(QRect(880, 390, 61, 16));
-        label_8->setAlignment(Qt::AlignCenter);
-        label_9 = new QLabel(centralWidget);
-        label_9->setObjectName("label_9");
-        label_9->setGeometry(QRect(720, 390, 61, 16));
-        label_9->setAlignment(Qt::AlignCenter);
-        faceBlueSpinBox = new QDoubleSpinBox(centralWidget);
-        faceBlueSpinBox->setObjectName("faceBlueSpinBox");
-        faceBlueSpinBox->setGeometry(QRect(880, 370, 62, 22));
-        faceBlueSpinBox->setMaximum(1.000000000000000);
-        faceBlueSpinBox->setSingleStep(0.050000000000000);
-        label_10 = new QLabel(centralWidget);
-        label_10->setObjectName("label_10");
-        label_10->setGeometry(QRect(640, 370, 71, 21));
-        faceGreenSpinBox = new QDoubleSpinBox(centralWidget);
-        faceGreenSpinBox->setObjectName("faceGreenSpinBox");
-        faceGreenSpinBox->setGeometry(QRect(800, 370, 62, 22));
-        faceGreenSpinBox->setMaximum(1.000000000000000);
-        faceGreenSpinBox->setSingleStep(0.050000000000000);
-        faceRedSpinBox = new QDoubleSpinBox(centralWidget);
-        faceRedSpinBox->setObjectName("faceRedSpinBox");
-        faceRedSpinBox->setGeometry(QRect(720, 370, 62, 22));
-        faceRedSpinBox->setMaximum(1.000000000000000);
-        faceRedSpinBox->setSingleStep(0.050000000000000);
-        label_11 = new QLabel(centralWidget);
-        label_11->setObjectName("label_11");
-        label_11->setGeometry(QRect(800, 390, 61, 16));
-        label_11->setAlignment(Qt::AlignCenter);
+        resetClothButton = new QPushButton(centralWidget);
+        resetClothButton->setObjectName("resetClothButton");
+        resetClothButton->setGeometry(QRect(680, 30, 100, 30));
+        dropCornerButton = new QPushButton(centralWidget);
+        dropCornerButton->setObjectName("dropCornerButton");
+        dropCornerButton->setGeometry(QRect(800, 30, 100, 30));
+        dropClothButton = new QPushButton(centralWidget);
+        dropClothButton->setObjectName("dropClothButton");
+        dropClothButton->setGeometry(QRect(930, 30, 100, 30));
+        drawTypeSelection = new QComboBox(centralWidget);
+        drawTypeSelection->addItem(QString());
+        drawTypeSelection->addItem(QString());
+        drawTypeSelection->addItem(QString());
+        drawTypeSelection->setObjectName("drawTypeSelection");
+        drawTypeSelection->setGeometry(QRect(750, 100, 72, 24));
+        objTypeSelection = new QComboBox(centralWidget);
+        objTypeSelection->addItem(QString());
+        objTypeSelection->addItem(QString());
+        objTypeSelection->setObjectName("objTypeSelection");
+        objTypeSelection->setGeometry(QRect(880, 100, 72, 24));
+        Spin_W = new QSpinBox(centralWidget);
+        Spin_W->setObjectName("Spin_W");
+        Spin_W->setEnabled(true);
+        Spin_W->setGeometry(QRect(730, 140, 42, 22));
+        Spin_W->setMinimum(2);
+        Spin_W->setMaximum(500);
+        Spin_W->setValue(10);
+        Label_Width = new QLabel(centralWidget);
+        Label_Width->setObjectName("Label_Width");
+        Label_Width->setGeometry(QRect(680, 140, 49, 16));
+        Label_Height = new QLabel(centralWidget);
+        Label_Height->setObjectName("Label_Height");
+        Label_Height->setGeometry(QRect(850, 140, 49, 16));
+        Spin_H = new QSpinBox(centralWidget);
+        Spin_H->setObjectName("Spin_H");
+        Spin_H->setEnabled(true);
+        Spin_H->setGeometry(QRect(910, 140, 42, 22));
+        Spin_H->setMinimum(2);
+        Spin_H->setMaximum(500);
+        Spin_H->setValue(10);
+        Label_SpringSize = new QLabel(centralWidget);
+        Label_SpringSize->setObjectName("Label_SpringSize");
+        Label_SpringSize->setGeometry(QRect(770, 190, 61, 16));
+        Spin_SS = new QDoubleSpinBox(centralWidget);
+        Spin_SS->setObjectName("Spin_SS");
+        Spin_SS->setGeometry(QRect(850, 190, 62, 22));
+        Spin_SS->setMinimum(0.100000000000000);
+        Spin_SS->setMaximum(5.000000000000000);
+        Spin_SS->setSingleStep(0.100000000000000);
+        Spin_SS->setValue(1.200000000000000);
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName("menuBar");
-        menuBar->setGeometry(QRect(0, 0, 1057, 25));
+        menuBar->setGeometry(QRect(0, 0, 1057, 21));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName("menuFile");
         MainWindow->setMenuBar(menuBar);
 
         menuBar->addAction(menuFile->menuAction());
         menuFile->addAction(actionQuit);
+        menuFile->addAction(actionReset);
 
         retranslateUi(MainWindow);
 
@@ -163,23 +132,29 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "OpenGLDemo", nullptr));
+        MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "ClothSimDemo", nullptr));
+        actionReset->setText(QCoreApplication::translate("MainWindow", "Reset", nullptr));
+#if QT_CONFIG(shortcut)
+        actionReset->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+R", nullptr));
+#endif // QT_CONFIG(shortcut)
         actionQuit->setText(QCoreApplication::translate("MainWindow", "Quit", nullptr));
 #if QT_CONFIG(shortcut)
         actionQuit->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+Q", nullptr));
 #endif // QT_CONFIG(shortcut)
         actionCamera_Controls->setText(QCoreApplication::translate("MainWindow", "Camera Controls", nullptr));
-        label->setText(QCoreApplication::translate("MainWindow", "Vertices", nullptr));
-        label_2->setText(QCoreApplication::translate("MainWindow", "Half-Edges", nullptr));
-        label_3->setText(QCoreApplication::translate("MainWindow", "Faces", nullptr));
-        label_4->setText(QCoreApplication::translate("MainWindow", "Vertex Position", nullptr));
-        label_5->setText(QCoreApplication::translate("MainWindow", "X", nullptr));
-        label_6->setText(QCoreApplication::translate("MainWindow", "Y", nullptr));
-        label_7->setText(QCoreApplication::translate("MainWindow", "Z", nullptr));
-        label_8->setText(QCoreApplication::translate("MainWindow", "Blue", nullptr));
-        label_9->setText(QCoreApplication::translate("MainWindow", "Red", nullptr));
-        label_10->setText(QCoreApplication::translate("MainWindow", "Face Color", nullptr));
-        label_11->setText(QCoreApplication::translate("MainWindow", "Green", nullptr));
+        resetClothButton->setText(QCoreApplication::translate("MainWindow", "Reset Cloth", nullptr));
+        dropCornerButton->setText(QCoreApplication::translate("MainWindow", "Drop Corner", nullptr));
+        dropClothButton->setText(QCoreApplication::translate("MainWindow", "Drop Cloth", nullptr));
+        drawTypeSelection->setItemText(0, QCoreApplication::translate("MainWindow", "Particle", nullptr));
+        drawTypeSelection->setItemText(1, QCoreApplication::translate("MainWindow", "Spring", nullptr));
+        drawTypeSelection->setItemText(2, QCoreApplication::translate("MainWindow", "Lambert", nullptr));
+
+        objTypeSelection->setItemText(0, QCoreApplication::translate("MainWindow", "Cloth", nullptr));
+        objTypeSelection->setItemText(1, QCoreApplication::translate("MainWindow", "Box", nullptr));
+
+        Label_Width->setText(QCoreApplication::translate("MainWindow", "Width", nullptr));
+        Label_Height->setText(QCoreApplication::translate("MainWindow", "Height", nullptr));
+        Label_SpringSize->setText(QCoreApplication::translate("MainWindow", "Spring Size", nullptr));
         menuFile->setTitle(QCoreApplication::translate("MainWindow", "File", nullptr));
     } // retranslateUi
 
