@@ -15,7 +15,8 @@ public:
     void update(float deltaTime);
     void updatePositionBuffer();
     void resetBox(glm::vec3 origin);
-
+    void dropBox();
+    Particle* findClosestParticle(const glm::vec3& rayOrigin, const glm::vec3& rayDirection);
     GLenum drawMode();
     int drawType;
     int width, height, depth;
@@ -30,7 +31,10 @@ private:
     void generateSprings();
     void drawParticles(std::vector<glm::vec3>& pos, std::vector<glm::vec3>& nor, std::vector<glm::vec3>& col, std::vector<GLuint>& idx);
     void drawSprings(std::vector<glm::vec3>& pos, std::vector<glm::vec3>& nor, std::vector<glm::vec3>& col, std::vector<GLuint>& idx);
-    void drawTetrahedrons(std::vector<glm::vec3>& pos, std::vector<glm::vec3>& nor, std::vector<glm::vec3>& col, std::vector<GLuint>& idx);
+    void drawExteriorFaces(std::vector<glm::vec3>& pos, std::vector<glm::vec3>& nor, std::vector<glm::vec3>& col, std::vector<GLuint>& idx);
+    void addQuad(std::vector<glm::vec3>& pos, std::vector<glm::vec3>& nor, std::vector<glm::vec3>& col, std::vector<GLuint>& idx,
+        int x, int y, int z, glm::vec3 normal);
+    int getIndex(int x, int y, int z);
 };
 
 #endif // SOFTBODYBOX_H

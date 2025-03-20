@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->objTypeSelection, &QComboBox::currentIndexChanged, this, &MainWindow::on_objTypeSelection_changed);
     connect(ui->Spin_W, &QSpinBox::valueChanged, this, &MainWindow::on_width_changed);
     connect(ui->Spin_H, &QSpinBox::valueChanged, this, &MainWindow::on_height_changed);
+    connect(ui->Spin_D, &QSpinBox::valueChanged, this, &MainWindow::on_depth_changed);
     connect(ui->Spin_SS, &QDoubleSpinBox::valueChanged, this, &MainWindow::on_spacing_changed);
 }
 
@@ -31,12 +32,12 @@ void MainWindow::on_actionQuit_triggered()
 
 void MainWindow::on_actionReset_triggered()
 {
-    ui->mygl->resetCloth();
+    ui->mygl->reset();
 }
 
 void MainWindow::on_resetClothButton_clicked()
 {
-    ui->mygl->resetCloth();
+    ui->mygl->reset();
 }
 
 void MainWindow::on_dropCornerButton_clicked()
@@ -46,7 +47,7 @@ void MainWindow::on_dropCornerButton_clicked()
 
 void MainWindow::on_dropClothButton_clicked()
 {
-    ui->mygl->dropCloth();
+    ui->mygl->drop();
 }
 
 void MainWindow::on_drawTypeSelection_changed(int index)

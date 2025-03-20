@@ -2,7 +2,7 @@
 
 Cloth::Cloth(OpenGLContext* mp_context, int w, int h, float spacing, glm::vec3 origin) : Drawable(mp_context), width(w), height(h), spacing(spacing), drawType(0), initialized(false) {
     // Create particles
-    for (int z = 0; z < height; ++z) {  // Z controls depth
+    for (int z = 0; z < height; ++z) {  // Z controls height
         for (int x = 0; x < width; ++x) {  // X controls width
             particles.emplace_back(origin + glm::vec3(x * spacing, 0, -z * spacing), 1.0f);
         }
@@ -189,12 +189,12 @@ void Cloth::update(float deltaTime) {
     }
 
     // Apply spring constraints multiple times per frame
-    //int iterations = 4; // More iterations = more stable cloth
-    //for (int i = 0; i < iterations; i++) {
-    //    for (auto& spring : springs) {
-    //        spring.applyConstraint(); // Position-based constraint
-    //    }
-    //}
+    int iterations = 4; // More iterations = more stable cloth
+    for (int i = 0; i < iterations; i++) {
+        for (auto& spring : springs) {
+            spring.applyConstraint(); // Position-based constraint
+        }
+    }
 }
 
 void Cloth::updatePositionBuffer() {
@@ -265,6 +265,7 @@ void Cloth::resetCloth(glm::vec3 origin) {
     for (int z = 0; z < height; ++z) {  // Z controls depth
         for (int x = 0; x < width; ++x) {  // X controls width
             particles[index].position = origin + glm::vec3(x * spacing, 0, -z * spacing);
+            particles[index].previousPosition = origin + glm::vec3(x * spacing, 0, -z * spacing);
             particles[index].velocity = glm::vec3(0.0f); // Reset velocity to zero
             particles[index].acceleration = glm::vec3(0.0f); // Reset acceleration to zero
             ++index;

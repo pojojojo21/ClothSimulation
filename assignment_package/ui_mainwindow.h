@@ -44,6 +44,8 @@ public:
     QSpinBox *Spin_H;
     QLabel *Label_SpringSize;
     QDoubleSpinBox *Spin_SS;
+    QSpinBox *Spin_D;
+    QLabel *Label_Depth;
     QMenuBar *menuBar;
     QMenu *menuFile;
 
@@ -105,14 +107,24 @@ public:
         Spin_H->setValue(10);
         Label_SpringSize = new QLabel(centralWidget);
         Label_SpringSize->setObjectName("Label_SpringSize");
-        Label_SpringSize->setGeometry(QRect(770, 190, 61, 16));
+        Label_SpringSize->setGeometry(QRect(770, 220, 61, 16));
         Spin_SS = new QDoubleSpinBox(centralWidget);
         Spin_SS->setObjectName("Spin_SS");
-        Spin_SS->setGeometry(QRect(850, 190, 62, 22));
+        Spin_SS->setGeometry(QRect(850, 220, 62, 22));
         Spin_SS->setMinimum(0.100000000000000);
         Spin_SS->setMaximum(5.000000000000000);
         Spin_SS->setSingleStep(0.100000000000000);
         Spin_SS->setValue(1.200000000000000);
+        Spin_D = new QSpinBox(centralWidget);
+        Spin_D->setObjectName("Spin_D");
+        Spin_D->setEnabled(true);
+        Spin_D->setGeometry(QRect(840, 180, 42, 22));
+        Spin_D->setMinimum(2);
+        Spin_D->setMaximum(500);
+        Spin_D->setValue(10);
+        Label_Depth = new QLabel(centralWidget);
+        Label_Depth->setObjectName("Label_Depth");
+        Label_Depth->setGeometry(QRect(780, 180, 49, 16));
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName("menuBar");
@@ -155,6 +167,7 @@ public:
         Label_Width->setText(QCoreApplication::translate("MainWindow", "Width", nullptr));
         Label_Height->setText(QCoreApplication::translate("MainWindow", "Height", nullptr));
         Label_SpringSize->setText(QCoreApplication::translate("MainWindow", "Spring Size", nullptr));
+        Label_Depth->setText(QCoreApplication::translate("MainWindow", "Depth", nullptr));
         menuFile->setTitle(QCoreApplication::translate("MainWindow", "File", nullptr));
     } // retranslateUi
 

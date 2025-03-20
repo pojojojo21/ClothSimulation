@@ -153,7 +153,7 @@ void MyGL::paintGL()
         m_box->updatePositionBuffer(); // Update position buffer with the latest particle positions
 
         // Draw the cloth
-        /*switch (m_box->drawType)
+        switch (m_box->drawType)
         {
         case 0:
             m_progFlat.draw(*m_box);
@@ -164,8 +164,8 @@ void MyGL::paintGL()
         case 2:
             m_progLambert.draw(*m_box);
             break;
-        }*/
-        m_progFlat.draw(*m_box);
+        }
+        //m_progFlat.draw(*m_box);
 
         break;
     }
@@ -193,8 +193,13 @@ void MyGL::mousePressEvent(QMouseEvent *e)
         screenToWorldRay(e->pos().x(), e->pos().y(), rayOrigin, rayDirection);
 
         // Find closest particle
-        selectedParticle = m_cloth->findClosestParticle(rayOrigin, rayDirection);
-
+        if (objType == 0) {
+            selectedParticle = m_cloth->findClosestParticle(rayOrigin, rayDirection);
+        }
+        else {
+            selectedParticle = m_box->findClosestParticle(rayOrigin, rayDirection);
+        }
+        
         if (selectedParticle) {
             selectedParticle->isFixed = true; // Lock particle in place
         }
@@ -211,7 +216,7 @@ void MyGL::mouseMoveEvent(QMouseEvent *e) {
             screenToWorldRay(e->pos().x(), e->pos().y(), rayOrigin, rayDirection);
 
             // Move the particle along the ray direction
-            selectedParticle->position = rayOrigin + rayDirection * 2.0f;
+            selectedParticle->position = rayOrigin + rayDirection * 1.0f;
             return;
         }
 
@@ -243,9 +248,10 @@ void MyGL::wheelEvent(QWheelEvent *e) {
     m_camera.Zoom(e->angleDelta().y() * 0.001f);
 }
 
-void MyGL::resetCloth()
+void MyGL::reset()
 {
     m_cloth->resetCloth(glm::vec3(0, 0, 0));
+    m_box->resetBox(glm::vec3(0, 0, 0));
 }
 
 void MyGL::dropCorner()
@@ -253,9 +259,10 @@ void MyGL::dropCorner()
     m_cloth->dropCorner();
 }
 
-void MyGL::dropCloth()
+void MyGL::drop()
 {
     m_cloth->dropCloth();
+    m_box->dropBox();
 }
 
 void MyGL::tick() {

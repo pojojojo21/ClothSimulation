@@ -73,9 +73,8 @@ void SoftBodyBox::initializeAndBufferGeometryData() {
         drawSprings(pos, nor, col, idx);
         break;
     case 2:
-        //drawTriangles(pos, nor, col, idx);
-        //break;
-        return;
+        drawExteriorFaces(pos, nor, col, idx);
+        break;
     }
 
     indexBufferLength = idx.size();
@@ -107,6 +106,14 @@ void SoftBodyBox::update(float deltaTime) {
         particle.applyForce(glm::vec3(0.f, -9.8f, 0.f)); // Gravity
         particle.update(deltaTime);
     }
+
+    // Apply spring constraints multiple times per frame
+    int iterations = 4; // More iterations = more stable cloth
+    for (int i = 0; i < iterations; i++) {
+        for (auto& spring : springs) {
+            spring.applyConstraint(); // Position-based constraint
+        }
+    }
 }
 
 void SoftBodyBox::updatePositionBuffer() {
@@ -115,7 +122,8 @@ void SoftBodyBox::updatePositionBuffer() {
         return;
     }
 
-    std::vector<glm::vec3> pos; std::vector<glm::vec3> nor;
+    std::vector<glm::vec3> pos, nor, col;
+    std::vector<GLuint> idx;
     switch (drawType) {
     case 0: // particles
         for (const auto& particle : particles) {
@@ -130,32 +138,10 @@ void SoftBodyBox::updatePositionBuffer() {
         }
         break;
     case 2:
-        //// Generate triangulated positions, normals, and colors
-        //for (int z = 0; z < height - 1; ++z) {
-        //    for (int x = 0; x < width - 1; ++x) {
-        //        // Get particle positions
-        //        glm::vec3 topLeft = particles[z * width + x].position;
-        //        glm::vec3 topRight = particles[z * width + (x + 1)].position;
-        //        glm::vec3 bottomLeft = particles[(z + 1) * width + x].position;
-        //        glm::vec3 bottomRight = particles[(z + 1) * width + (x + 1)].position;
 
-        //        // Compute normals (cross product of triangle edges)
-        //        glm::vec3 normal1 = glm::normalize(glm::cross(topRight - topLeft, bottomLeft - topLeft));
-        //        glm::vec3 normal2 = glm::normalize(glm::cross(topRight - bottomLeft, bottomRight - bottomLeft));
-
-        //        // First triangle (top-left, bottom-left, top-right)
-        //        pos.push_back(topLeft); nor.push_back(normal1);
-        //        pos.push_back(bottomLeft); nor.push_back(normal1);
-        //        pos.push_back(topRight); nor.push_back(normal1);
-
-        //        // Second triangle (bottom-left, bottom-right, top-right)
-        //        pos.push_back(bottomLeft); nor.push_back(normal2);
-        //        pos.push_back(bottomRight); nor.push_back(normal2);
-        //        pos.push_back(topRight); nor.push_back(normal2);
-        //    }
-        //}
-        //break;
-        return;
+        // Generate triangulated positions, normals, and colors
+        drawExteriorFaces(pos, nor, col, idx);
+        break;
     }
 
     // Update position buffer
@@ -172,7 +158,8 @@ void SoftBodyBox::resetBox(glm::vec3 origin) {// Reset particle positions and ve
     for (int z = 0; z < depth; ++z) {  // Z controls depth
         for (int y = 0; y < height; ++y) {  // Y controls height
             for (int x = 0; x < width; ++x) {  // X controls width
-                particles[index].position = origin + glm::vec3(x * spacing, y * spacing, -z * spacing);
+                particles[index].position = origin + glm::vec3(x * spacing, y * spacing, z * spacing);
+                particles[index].previousPosition = origin + glm::vec3(x * spacing, y * spacing, z * spacing);
                 particles[index].velocity = glm::vec3(0.0f); // Reset velocity to zero
                 particles[index].acceleration = glm::vec3(0.0f); // Reset acceleration to zero
                 ++index;
@@ -180,8 +167,21 @@ void SoftBodyBox::resetBox(glm::vec3 origin) {// Reset particle positions and ve
         }
     }
 
+    particles[0].isFixed = true;
+    particles[width - 1].isFixed = true;
+    particles[width * height - 1].isFixed = true;
+    particles[width * height * depth - 1].isFixed = true;
+
     // Update the position buffer for rendering
     updatePositionBuffer();
+}
+
+void SoftBodyBox::dropBox()
+{
+    particles[0].isFixed = false;
+    particles[width - 1].isFixed = false;
+    particles[width * height - 1].isFixed = false;
+    particles[width * height * depth - 1].isFixed = false;
 }
 
 GLenum SoftBodyBox::drawMode() {
@@ -232,66 +232,155 @@ void SoftBodyBox::drawSprings(std::vector<glm::vec3>& pos,
     }
 }
 
-void SoftBodyBox::drawTetrahedrons(std::vector<glm::vec3>& pos,
-    std::vector<glm::vec3>& nor,
-    std::vector<glm::vec3>& col,
-    std::vector<GLuint>& idx)
-{
+void SoftBodyBox::drawExteriorFaces(std::vector<glm::vec3>& pos,
+                                    std::vector<glm::vec3>& nor,
+                                    std::vector<glm::vec3>& col,
+                                    std::vector<GLuint>& idx) {
     pos.clear();
     nor.clear();
     col.clear();
     idx.clear();
 
-    // Iterate through volume to create tetrahedral mesh
-    for (int z = 0; z < depth - 1; ++z) {
-        for (int y = 0; y < height - 1; ++y) {
-            for (int x = 0; x < width - 1; ++x) {
-                // Get indices of corner particles
-                int v000 = z * width * height + y * width + x;
-                int v100 = v000 + 1;
-                int v010 = v000 + width;
-                int v110 = v010 + 1;
-                int v001 = v000 + (width * height);
-                int v101 = v100 + (width * height);
-                int v011 = v010 + (width * height);
-                int v111 = v110 + (width * height);
+    // Color for shading
+    glm::vec3 color(1.0f, 1.0f, 1.0f);
 
-                // Define tetrahedral faces (split cube into tetrahedrons)
-                glm::vec3 verts[8] = {
-                    particles[v000].position, particles[v100].position,
-                    particles[v010].position, particles[v110].position,
-                    particles[v001].position, particles[v101].position,
-                    particles[v011].position, particles[v111].position
-                };
+    // Iterate through the 6 exterior faces of the box
+    for (int z = 0; z < depth; ++z) {
+        for (int y = 0; y < height; ++y) {
+            for (int x = 0; x < width; ++x) {
+                int index = z * width * height + y * width + x;
 
-                // Define normals (cross products)
-                glm::vec3 normal1 = glm::normalize(glm::cross(verts[1] - verts[0], verts[2] - verts[0]));
-                glm::vec3 normal2 = glm::normalize(glm::cross(verts[1] - verts[2], verts[3] - verts[2]));
-                glm::vec3 normal3 = glm::normalize(glm::cross(verts[0] - verts[4], verts[5] - verts[4]));
-                glm::vec3 normal4 = glm::normalize(glm::cross(verts[0] - verts[5], verts[1] - verts[5]));
-                glm::vec3 normal5 = glm::normalize(glm::cross(verts[2] - verts[6], verts[7] - verts[6]));
-                glm::vec3 normal6 = glm::normalize(glm::cross(verts[2] - verts[7], verts[3] - verts[7]));
-
-                glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
-
-                // First tetrahedron (0,1,2,3)
-                idx.push_back(pos.size()); pos.push_back(verts[0]); nor.push_back(normal1); col.push_back(color);
-                idx.push_back(pos.size()); pos.push_back(verts[1]); nor.push_back(normal1); col.push_back(color);
-                idx.push_back(pos.size()); pos.push_back(verts[2]); nor.push_back(normal1); col.push_back(color);
-                idx.push_back(pos.size()); pos.push_back(verts[3]); nor.push_back(normal2); col.push_back(color);
-
-                // Second tetrahedron (0,4,5,1)
-                idx.push_back(pos.size()); pos.push_back(verts[0]); nor.push_back(normal3); col.push_back(color);
-                idx.push_back(pos.size()); pos.push_back(verts[4]); nor.push_back(normal3); col.push_back(color);
-                idx.push_back(pos.size()); pos.push_back(verts[5]); nor.push_back(normal3); col.push_back(color);
-                idx.push_back(pos.size()); pos.push_back(verts[1]); nor.push_back(normal4); col.push_back(color);
-
-                // Third tetrahedron (2,6,7,3)
-                idx.push_back(pos.size()); pos.push_back(verts[2]); nor.push_back(normal5); col.push_back(color);
-                idx.push_back(pos.size()); pos.push_back(verts[6]); nor.push_back(normal5); col.push_back(color);
-                idx.push_back(pos.size()); pos.push_back(verts[7]); nor.push_back(normal5); col.push_back(color);
-                idx.push_back(pos.size()); pos.push_back(verts[3]); nor.push_back(normal6); col.push_back(color);
+                // Generate faces for each of the 6 sides
+                if (z == 0) { // XY plane -Z
+                    if (x < width - 1 && y < height - 1) { // Boundary check
+                        addQuad(pos, nor, col, idx, x, y, z, glm::vec3(0, 0, -1));
+                    }
+                }
+                if (z == depth - 1) { // XY plane +Z
+                    if (x < width - 1 && y < height - 1) { // Boundary check
+                        addQuad(pos, nor, col, idx, x, y, z, glm::vec3(0, 0, 1));
+                    }
+                }
+                if (y == 0) { // XZ plane -Y
+                    if (x < width - 1 && z < depth - 1) { // Boundary check
+                        addQuad(pos, nor, col, idx, x, y, z, glm::vec3(0, -1, 0));
+                    }
+                }
+                if (y == height - 1) { // XZ plane +Y
+                    if (x < width - 1 && z < depth - 1) { // Boundary check
+                        addQuad(pos, nor, col, idx, x, y, z, glm::vec3(0, 1, 0));
+                    }
+                }
+                if (x == 0) { // YZ plane -X
+                    if (y < height - 1 && z < depth - 1) { // Boundary check
+                        addQuad(pos, nor, col, idx, x, y, z, glm::vec3(-1, 0, 0));
+                    }
+                }
+                if (x == width - 1) { // YZ plane +X
+                    if (y < height - 1 && z < depth - 1) { // Boundary check
+                        addQuad(pos, nor, col, idx, x, y, z, glm::vec3(1, 0, 0));
+                    }
+                }
             }
         }
     }
+}
+
+void SoftBodyBox::addQuad(std::vector<glm::vec3>& pos,
+    std::vector<glm::vec3>& nor,
+    std::vector<glm::vec3>& col,
+    std::vector<GLuint>& idx,
+    int x, int y, int z,
+    glm::vec3 normal) {
+    glm::vec3 color(1.0f, 1.0f, 1.0f); // Default white color
+
+    int v000, v100, v010, v110;
+
+    if (normal.z != 0)
+    {
+        v000 = getIndex(x, y, z);
+        v100 = getIndex(x+1, y, z);
+        v010 = getIndex(x, y+1, z);
+        v110 = getIndex(x+1, y+1, z);
+    }
+    if (normal.y != 0)
+    {
+        v000 = getIndex(x, y, z);
+        v100 = getIndex(x + 1, y, z);
+        v010 = getIndex(x, y, z + 1);
+        v110 = getIndex(x + 1, y, z + 1);
+    }
+    if (normal.x != 0)
+    {
+        v000 = getIndex(x, y, z);
+        v100 = getIndex(x, y + 1, z);
+        v010 = getIndex(x, y, z + 1);
+        v110 = getIndex(x, y + 1, z + 1);
+    }
+
+    glm::vec3 p1 = particles[v000].position;
+    glm::vec3 p2 = particles[v010].position;
+    glm::vec3 p3 = particles[v100].position;
+    glm::vec3 p4 = particles[v110].position;
+
+    // Compute normals (cross product of triangle edges)
+    glm::vec3 normal1, normal2;
+
+    //normal1 = glm::normalize(glm::cross(p2 - p1, p3 - p1));
+    //normal2 = glm::normalize(glm::cross(p2 - p3, p4 - p3));
+
+    if (normal.x < 0 || normal.y > 0 || normal.z < 0)
+    {
+        normal1 = glm::normalize(glm::cross(p2 - p1, p3 - p1));
+        normal2 = glm::normalize(glm::cross(p2 - p3, p4 - p3));
+    }
+    else {
+        normal1 = glm::normalize(glm::cross(p3 - p1, p2 - p1));
+        normal2 = glm::normalize(glm::cross(p4 - p3, p2 - p3));
+    }
+    
+
+    // First triangle (p1, p2, p3)
+    idx.push_back(pos.size()); pos.push_back(p1); nor.push_back(normal1); col.push_back(color);
+    idx.push_back(pos.size()); pos.push_back(p2); nor.push_back(normal1); col.push_back(color);
+    idx.push_back(pos.size()); pos.push_back(p3); nor.push_back(normal1); col.push_back(color);
+
+    // Second triangle (p2, p4, p3)
+    idx.push_back(pos.size()); pos.push_back(p2); nor.push_back(normal2); col.push_back(color);
+    idx.push_back(pos.size()); pos.push_back(p4); nor.push_back(normal2); col.push_back(color);
+    idx.push_back(pos.size()); pos.push_back(p3); nor.push_back(normal2); col.push_back(color);
+}
+
+int SoftBodyBox::getIndex(int x, int y, int z)
+{
+    return z * width * height + y * width + x;
+}
+
+Particle* SoftBodyBox::findClosestParticle(const glm::vec3& rayOrigin, const glm::vec3& rayDirection) {
+    Particle* closestParticle = nullptr;
+    float minDistance = std::numeric_limits<float>::max();
+    float maxSelectionDistance = 0.5f; // Threshold for valid selection
+
+    for (auto& particle : particles) {
+        glm::vec3 toParticle = particle.position - rayOrigin;
+        float t = glm::dot(toParticle, rayDirection);
+
+        // Ensure the projected point is in front of the ray origin
+        if (t < 0) continue;
+
+        glm::vec3 closestPoint = rayOrigin + t * rayDirection;
+        float distance = glm::length(closestPoint - particle.position);
+
+        if (distance < maxSelectionDistance && distance < minDistance) {
+            minDistance = distance;
+            closestParticle = &particle;
+        }
+    }
+
+    // If the closest particle is still too far, return nullptr
+    if (minDistance >= maxSelectionDistance) {
+        return nullptr;
+    }
+
+    return closestParticle;
 }

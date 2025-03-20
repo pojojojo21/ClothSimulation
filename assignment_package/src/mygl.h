@@ -49,9 +49,9 @@ public:
     void initializeGL();
     void resizeGL(int w, int h);
     void paintGL();
-    void resetCloth();
+    void reset();
     void dropCorner();
-    void dropCloth();
+    void drop();
     void setDrawType(int index);
     void setObjType(int index);
     void changeCloth(bool changeW, int width, bool changeH, int height, bool changeS, float spacing);
