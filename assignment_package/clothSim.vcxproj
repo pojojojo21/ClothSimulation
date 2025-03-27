@@ -203,6 +203,7 @@
     </QtUic>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="FluidSim.cpp" />
     <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\cloth.cpp" />
     <ClCompile Include="src\drawable.cpp" />
@@ -219,6 +220,7 @@
     <ClCompile Include="src\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="FluidSim.h" />
     <ClInclude Include="src\camera.h" />
     <ClInclude Include="src\cloth.h" />
     <ClInclude Include="src\drawable.h" />

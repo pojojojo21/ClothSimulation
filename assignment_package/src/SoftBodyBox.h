@@ -12,9 +12,9 @@ public:
     SoftBodyBox(OpenGLContext* mp_context, int w, int h, int d, float spacing, glm::vec3 origin);
 
     void initializeAndBufferGeometryData();
-    void update(float deltaTime);
+    void update(float deltaTime, Integration index);
     void updatePositionBuffer();
-    void resetBox(glm::vec3 origin);
+    void resetBox();
     void dropBox();
     Particle* findClosestParticle(const glm::vec3& rayOrigin, const glm::vec3& rayDirection);
     GLenum drawMode();

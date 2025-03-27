@@ -12,16 +12,19 @@ MyGL::MyGL(QWidget *parent)
       m_geomSquare(this),
       m_cloth(nullptr),
       m_box(nullptr),
+      m_fluidSim(nullptr),
       m_progLambert(this), m_progFlat(this),
       vao(),
       m_camera(width(), height()),
       m_mousePosPrev(),
-      objType(0)
+      objType(0),
+      integrationType(Integration::VERLET)
 {
     setFocusPolicy(Qt::StrongFocus);
 
     m_cloth = std::make_unique<Cloth>(this, 10, 10, 1.2f, glm::vec3(0, 0, 0));
     m_box = std::make_unique<SoftBodyBox>(this, 10, 10, 10, 1.2f, glm::vec3(0, 0, 0));
+    m_fluidSim = std::make_unique<FluidSim>(this, 100, glm::vec3(0, 0, 0), 1.2f);
 
     connect(&timer, SIGNAL(timeout()), this, SLOT(tick()));
     // Tell the timer to redraw 60 times per second
@@ -66,6 +69,9 @@ void MyGL::initializeGL()
 
     //Create the box instance
     m_box->initializeAndBufferGeometryData();
+
+    //Create the fluidSim instance
+    m_fluidSim->initializeAndBufferGeometryData();
 
     // Create and set up the diffuse shader
     m_progLambert.createAndCompileShaderProgram("lambert.vert.glsl", "lambert.frag.glsl");
@@ -126,11 +132,11 @@ void MyGL::paintGL()
     //m_progLambert.setUnifMat4("u_ModelInvTr", glm::inverse(glm::transpose(model)));
     //m_progLambert.draw(m_geomSquare);
 
-    // Update cloth simulation
+    
     switch (objType)
     {
-    case 0:
-        m_cloth->update(1.0f / 60.0f); // Assuming 60 FPS for deltaTime
+    case 0: // Update cloth simulation
+        m_cloth->update(1.0f / 60.0f, integrationType); // Assuming 60 FPS for deltaTime
         m_cloth->updatePositionBuffer(); // Update position buffer with the latest particle positions
 
         // Draw the cloth
@@ -148,8 +154,8 @@ void MyGL::paintGL()
         }
 
         break;
-    case 1:
-        m_box->update(1.0f / 60.0f); // Assuming 60 FPS for deltaTime
+    case 1: // Update box simulation
+        m_box->update(1.0f / 60.0f, integrationType); // Assuming 60 FPS for deltaTime
         m_box->updatePositionBuffer(); // Update position buffer with the latest particle positions
 
         // Draw the cloth
@@ -168,10 +174,12 @@ void MyGL::paintGL()
         //m_progFlat.draw(*m_box);
 
         break;
+    case 2: // Update fluid simulation
+        m_fluidSim->update(1.0f / 60.0f, integrationType);
+        m_fluidSim->updatePositionBuffer();
+        m_progFlat.draw(*m_fluidSim);
+        break;
     }
-
-
-    
 }
 
 void MyGL::keyPressEvent(QKeyEvent *e) {
@@ -250,8 +258,9 @@ void MyGL::wheelEvent(QWheelEvent *e) {
 
 void MyGL::reset()
 {
-    m_cloth->resetCloth(glm::vec3(0, 0, 0));
-    m_box->resetBox(glm::vec3(0, 0, 0));
+    m_cloth->resetCloth();
+    m_box->resetBox();
+    m_fluidSim->reset();
 }
 
 void MyGL::dropCorner()
@@ -282,6 +291,22 @@ void MyGL::setDrawType(int index)
 void MyGL::setObjType(int index)
 {
     this->objType = index;
+}
+
+void MyGL::setIntegrationType(int index)
+{
+    switch (index)
+    {
+    case 0:
+        this->integrationType = Integration::VERLET;
+        break;
+    case 1:
+        this->integrationType = Integration::IMPLICITEULER;
+        break;
+    case 2:
+        this->integrationType = Integration::EULER;
+        break;
+    }
 }
 
 void MyGL::changeCloth(bool changeW, int width, bool changeH, int height, bool changeS, float spacing)

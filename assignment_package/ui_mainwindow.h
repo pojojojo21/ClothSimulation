@@ -46,6 +46,7 @@ public:
     QDoubleSpinBox *Spin_SS;
     QSpinBox *Spin_D;
     QLabel *Label_Depth;
+    QComboBox *integrationTypeSelection;
     QMenuBar *menuBar;
     QMenu *menuFile;
 
@@ -79,12 +80,13 @@ public:
         drawTypeSelection->addItem(QString());
         drawTypeSelection->addItem(QString());
         drawTypeSelection->setObjectName("drawTypeSelection");
-        drawTypeSelection->setGeometry(QRect(750, 100, 72, 24));
+        drawTypeSelection->setGeometry(QRect(680, 100, 72, 24));
         objTypeSelection = new QComboBox(centralWidget);
         objTypeSelection->addItem(QString());
         objTypeSelection->addItem(QString());
+        objTypeSelection->addItem(QString());
         objTypeSelection->setObjectName("objTypeSelection");
-        objTypeSelection->setGeometry(QRect(880, 100, 72, 24));
+        objTypeSelection->setGeometry(QRect(810, 100, 72, 24));
         Spin_W = new QSpinBox(centralWidget);
         Spin_W->setObjectName("Spin_W");
         Spin_W->setEnabled(true);
@@ -125,6 +127,12 @@ public:
         Label_Depth = new QLabel(centralWidget);
         Label_Depth->setObjectName("Label_Depth");
         Label_Depth->setGeometry(QRect(780, 180, 49, 16));
+        integrationTypeSelection = new QComboBox(centralWidget);
+        integrationTypeSelection->addItem(QString());
+        integrationTypeSelection->addItem(QString());
+        integrationTypeSelection->addItem(QString());
+        integrationTypeSelection->setObjectName("integrationTypeSelection");
+        integrationTypeSelection->setGeometry(QRect(930, 100, 72, 24));
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName("menuBar");
@@ -154,20 +162,25 @@ public:
         actionQuit->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+Q", nullptr));
 #endif // QT_CONFIG(shortcut)
         actionCamera_Controls->setText(QCoreApplication::translate("MainWindow", "Camera Controls", nullptr));
-        resetClothButton->setText(QCoreApplication::translate("MainWindow", "Reset Cloth", nullptr));
+        resetClothButton->setText(QCoreApplication::translate("MainWindow", "Reset", nullptr));
         dropCornerButton->setText(QCoreApplication::translate("MainWindow", "Drop Corner", nullptr));
-        dropClothButton->setText(QCoreApplication::translate("MainWindow", "Drop Cloth", nullptr));
+        dropClothButton->setText(QCoreApplication::translate("MainWindow", "Drop", nullptr));
         drawTypeSelection->setItemText(0, QCoreApplication::translate("MainWindow", "Particle", nullptr));
         drawTypeSelection->setItemText(1, QCoreApplication::translate("MainWindow", "Spring", nullptr));
         drawTypeSelection->setItemText(2, QCoreApplication::translate("MainWindow", "Lambert", nullptr));
 
         objTypeSelection->setItemText(0, QCoreApplication::translate("MainWindow", "Cloth", nullptr));
         objTypeSelection->setItemText(1, QCoreApplication::translate("MainWindow", "Box", nullptr));
+        objTypeSelection->setItemText(2, QCoreApplication::translate("MainWindow", "FluidSim", nullptr));
 
         Label_Width->setText(QCoreApplication::translate("MainWindow", "Width", nullptr));
         Label_Height->setText(QCoreApplication::translate("MainWindow", "Height", nullptr));
         Label_SpringSize->setText(QCoreApplication::translate("MainWindow", "Spring Size", nullptr));
         Label_Depth->setText(QCoreApplication::translate("MainWindow", "Depth", nullptr));
+        integrationTypeSelection->setItemText(0, QCoreApplication::translate("MainWindow", "Verlet", nullptr));
+        integrationTypeSelection->setItemText(1, QCoreApplication::translate("MainWindow", "Implicit Euler", nullptr));
+        integrationTypeSelection->setItemText(2, QCoreApplication::translate("MainWindow", "Euler", nullptr));
+
         menuFile->setTitle(QCoreApplication::translate("MainWindow", "File", nullptr));
     } // retranslateUi
 

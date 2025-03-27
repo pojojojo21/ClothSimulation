@@ -179,13 +179,13 @@ GLenum Cloth::drawMode() {
     }
 }
 
-void Cloth::update(float deltaTime) {
+void Cloth::update(float deltaTime, Integration index) {
     for (auto& spring : springs) {
         spring.applyForces();
     }
     for (auto& particle : particles) {
         particle.applyForce(glm::vec3(0.f, -9.8f, 0.f));
-        particle.update(deltaTime);
+        particle.update(deltaTime, index);
     }
 
     // Apply spring constraints multiple times per frame
@@ -259,17 +259,10 @@ void Cloth::updatePositionBuffer() {
     glContext->glBufferSubData(GL_ARRAY_BUFFER, 0, nor.size() * sizeof(glm::vec3), nor.data());
 }
 
-void Cloth::resetCloth(glm::vec3 origin) {
+void Cloth::resetCloth() {
     // Reset particle positions and velocities
-    int index = 0;
-    for (int z = 0; z < height; ++z) {  // Z controls depth
-        for (int x = 0; x < width; ++x) {  // X controls width
-            particles[index].position = origin + glm::vec3(x * spacing, 0, -z * spacing);
-            particles[index].previousPosition = origin + glm::vec3(x * spacing, 0, -z * spacing);
-            particles[index].velocity = glm::vec3(0.0f); // Reset velocity to zero
-            particles[index].acceleration = glm::vec3(0.0f); // Reset acceleration to zero
-            ++index;
-        }
+    for (auto& p : particles) {
+        p.reset();
     }
 
     // Ensure fixed particles remain fixed

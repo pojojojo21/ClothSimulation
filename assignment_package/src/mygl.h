@@ -7,6 +7,7 @@
 #include <scene/squareplane.h>
 #include <cloth.h>
 #include <SoftBodyBox.h>
+#include <FluidSim.h>
 #include "camera.h"
 
 #include <QOpenGLVertexArrayObject>
@@ -26,6 +27,7 @@ private:
     SquarePlane m_geomSquare;// The instance of a unit cylinder we can use to render any cylinder
     std::unique_ptr<Cloth> m_cloth;// The instance of the cloth
     std::unique_ptr<SoftBodyBox> m_box;// The instance of the cloth
+    std::unique_ptr<FluidSim> m_fluidSim;
 
     ShaderProgram m_progLambert;// A shader program that uses lambertian reflection
     ShaderProgram m_progFlat;// A shader program that uses "flat" reflection (no shadowing at all)
@@ -40,6 +42,7 @@ private:
     glm::vec2 m_mousePosPrev;
 
     int objType;
+    Integration integrationType;
     Particle* selectedParticle;
 
 public:
@@ -54,6 +57,7 @@ public:
     void drop();
     void setDrawType(int index);
     void setObjType(int index);
+    void setIntegrationType(int index);
     void changeCloth(bool changeW, int width, bool changeH, int height, bool changeS, float spacing);
     void changeBox(bool changeW, int width, bool changeH, int height, bool changeD, int depth, bool changeS, float spacing);
 

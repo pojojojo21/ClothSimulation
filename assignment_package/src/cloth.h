@@ -20,13 +20,13 @@ public:
 
     Cloth(OpenGLContext* mp_context, int w, int h, float spacing, glm::vec3 origin);
 
-    void update(float deltaTime);
+    void update(float deltaTime, Integration index);
     void initializeAndBufferGeometryData() override;
     void drawParticles(std::vector<glm::vec3>& pos, std::vector<glm::vec3>& nor, std::vector<glm::vec3>& col, std::vector<GLuint>& idx);
     void drawSprings(std::vector<glm::vec3>& pos, std::vector<glm::vec3>& nor, std::vector<glm::vec3>& col, std::vector<GLuint>& idx);
     void drawTriangles(std::vector<glm::vec3>& pos, std::vector<glm::vec3>& nor, std::vector<glm::vec3>& col, std::vector<GLuint>& idx);
     void updatePositionBuffer();
-    void resetCloth(glm::vec3 origin);
+    void resetCloth();
     void dropCorner();
     void dropCloth();
     Particle* findClosestParticle(const glm::vec3& rayOrigin, const glm::vec3& rayDirection);

@@ -29,6 +29,7 @@ private slots:
     void on_height_changed(int height);
     void on_depth_changed(int depth);
     void on_spacing_changed(float spacing);
+    void on_itegration_changed(int index);
 
 private:
     Ui::MainWindow *ui;

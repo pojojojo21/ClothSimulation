@@ -34,7 +34,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Reset Cloth</string>
+     <string>Reset</string>
     </property>
    </widget>
    <widget class="QPushButton" name="dropCornerButton">
@@ -60,13 +60,13 @@
      </rect>
     </property>
     <property name="text">
-     <string>Drop Cloth</string>
+     <string>Drop</string>
     </property>
    </widget>
    <widget class="QComboBox" name="drawTypeSelection">
     <property name="geometry">
      <rect>
-      <x>750</x>
+      <x>680</x>
       <y>100</y>
       <width>72</width>
       <height>24</height>
@@ -91,7 +91,7 @@
    <widget class="QComboBox" name="objTypeSelection">
     <property name="geometry">
      <rect>
-      <x>880</x>
+      <x>810</x>
       <y>100</y>
       <width>72</width>
       <height>24</height>
@@ -105,6 +105,11 @@
     <item>
      <property name="text">
       <string>Box</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>FluidSim</string>
      </property>
     </item>
    </widget>
@@ -247,6 +252,31 @@
     <property name="text">
      <string>Depth</string>
     </property>
+   </widget>
+   <widget class="QComboBox" name="integrationTypeSelection">
+    <property name="geometry">
+     <rect>
+      <x>930</x>
+      <y>100</y>
+      <width>72</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>Verlet</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Implicit Euler</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Euler</string>
+     </property>
+    </item>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">

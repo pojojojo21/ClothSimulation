@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->Spin_H, &QSpinBox::valueChanged, this, &MainWindow::on_height_changed);
     connect(ui->Spin_D, &QSpinBox::valueChanged, this, &MainWindow::on_depth_changed);
     connect(ui->Spin_SS, &QDoubleSpinBox::valueChanged, this, &MainWindow::on_spacing_changed);
+    connect(ui->integrationTypeSelection, &QComboBox::currentIndexChanged, this, &MainWindow::on_itegration_changed);
 }
 
 MainWindow::~MainWindow()
@@ -81,4 +82,9 @@ void MainWindow::on_spacing_changed(float spacing)
 {
     ui->mygl->changeCloth(0, 0, 0 , 0, true, spacing);
     ui->mygl->changeBox(0, 0, 0 , 0, 0, 0, true, spacing);
+}
+
+void MainWindow::on_itegration_changed(int index)
+{
+    ui->mygl->setIntegrationType(index);
 }

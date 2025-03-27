@@ -98,13 +98,13 @@ void SoftBodyBox::initializeAndBufferGeometryData() {
     initialized = true;
 }
 
-void SoftBodyBox::update(float deltaTime) {
+void SoftBodyBox::update(float deltaTime, Integration index) {
     for (auto& spring : springs) {
         spring.applyForces();
     }
     for (auto& particle : particles) {
         particle.applyForce(glm::vec3(0.f, -9.8f, 0.f)); // Gravity
-        particle.update(deltaTime);
+        particle.update(deltaTime, index);
     }
 
     // Apply spring constraints multiple times per frame
@@ -153,18 +153,9 @@ void SoftBodyBox::updatePositionBuffer() {
     glContext->glBufferSubData(GL_ARRAY_BUFFER, 0, nor.size() * sizeof(glm::vec3), nor.data());
 }
 
-void SoftBodyBox::resetBox(glm::vec3 origin) {// Reset particle positions and velocities
-    int index = 0;
-    for (int z = 0; z < depth; ++z) {  // Z controls depth
-        for (int y = 0; y < height; ++y) {  // Y controls height
-            for (int x = 0; x < width; ++x) {  // X controls width
-                particles[index].position = origin + glm::vec3(x * spacing, y * spacing, z * spacing);
-                particles[index].previousPosition = origin + glm::vec3(x * spacing, y * spacing, z * spacing);
-                particles[index].velocity = glm::vec3(0.0f); // Reset velocity to zero
-                particles[index].acceleration = glm::vec3(0.0f); // Reset acceleration to zero
-                ++index;
-            }
-        }
+void SoftBodyBox::resetBox() {// Reset particle positions and velocities
+    for (auto& p : particles) {
+        p.reset();
     }
 
     particles[0].isFixed = true;
