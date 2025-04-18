@@ -12,7 +12,7 @@ void Particle::applyForce(const glm::vec3& force) {
     }
 }
 
-void Particle::update(float deltaTime, Integration type) {
+void Particle::update(float deltaTime, Integration type, bool sim) {
     switch (type)
     {
     case Integration::EULER:
@@ -28,9 +28,12 @@ void Particle::update(float deltaTime, Integration type) {
         break;
     }
 
-    // Apply floor collision detection
-    float floorHeight = -20.0f;  // Adjust this based on your scene
-    floorCollision(floorHeight);
+    if (!sim)
+    {
+        // Apply floor collision detection
+        float floorHeight = -20.0f;  // Adjust this based on your scene
+        floorCollision(floorHeight);
+    }
 
     acceleration = glm::vec3(0.0f);
 }
@@ -74,6 +77,29 @@ void Particle::floorCollision(float floorHeight)
         position.y = floorHeight; // Keep particle above the floor
         previousPosition.y = floorHeight; // Prevent penetration
         velocity.y *= -0.3f;
+    }
+}
+
+const float BOUND_DAMPING = -0.5f;
+
+void Particle::boxCollision()
+{
+
+    float domainX = 20.f;
+    float domainZ = 20.f;
+
+    // Collision with bounds (simple box)
+    if (position.y < 0) {
+        velocity.y *= BOUND_DAMPING;
+        position.y = 0;
+    }
+    if (position.x < 0 || position.x > domainX) {
+        velocity.x *= BOUND_DAMPING;
+        position.x = glm::clamp(position.x, 0.0f, domainX);
+    }
+    if (position.z < 0 || position.z > domainZ) {
+        velocity.z *= BOUND_DAMPING;
+        position.z = glm::clamp(position.z, 0.0f, domainZ);
     }
 }
 

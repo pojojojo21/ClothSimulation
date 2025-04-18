@@ -26,11 +26,12 @@ public:
     Particle(glm::vec3 pos, float m);
 
     void applyForce(const glm::vec3& force);
-    void update(float deltaTime, Integration type);
+    void update(float deltaTime, Integration type, bool sim);
     void eulerUpdate(float deltaTime);          // Basic Euler integration
     void implicitEulerUpdate(float deltaTime);  //Implicit Euler integration
     void verletUpdate(float deltaTime);         // Verlet integration
     void floorCollision(float floorHeight);     // Floor Collision
+    void boxCollision();                        // Box Collision
     void reset();
 };
 

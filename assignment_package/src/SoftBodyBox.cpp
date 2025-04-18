@@ -104,7 +104,7 @@ void SoftBodyBox::update(float deltaTime, Integration index) {
     }
     for (auto& particle : particles) {
         particle.applyForce(glm::vec3(0.f, -9.8f, 0.f)); // Gravity
-        particle.update(deltaTime, index);
+        particle.update(deltaTime, index, false);
     }
 
     // Apply spring constraints multiple times per frame

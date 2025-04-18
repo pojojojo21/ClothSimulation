@@ -18,13 +18,14 @@ MyGL::MyGL(QWidget *parent)
       m_camera(width(), height()),
       m_mousePosPrev(),
       objType(0),
-      integrationType(Integration::VERLET)
+      integrationType(Integration::VERLET),
+      selectedParticle(nullptr)
 {
     setFocusPolicy(Qt::StrongFocus);
 
     m_cloth = std::make_unique<Cloth>(this, 10, 10, 1.2f, glm::vec3(0, 0, 0));
     m_box = std::make_unique<SoftBodyBox>(this, 10, 10, 10, 1.2f, glm::vec3(0, 0, 0));
-    m_fluidSim = std::make_unique<FluidSim>(this, 100, glm::vec3(0, 0, 0), 1.2f);
+    m_fluidSim = std::make_unique<FluidSim>(this, 10, glm::vec3(0, 0, 0), 0.7f);
 
     connect(&timer, SIGNAL(timeout()), this, SLOT(tick()));
     // Tell the timer to redraw 60 times per second
@@ -176,7 +177,6 @@ void MyGL::paintGL()
         break;
     case 2: // Update fluid simulation
         m_fluidSim->update(1.0f / 60.0f, integrationType);
-        m_fluidSim->updatePositionBuffer();
         m_progFlat.draw(*m_fluidSim);
         break;
     }
