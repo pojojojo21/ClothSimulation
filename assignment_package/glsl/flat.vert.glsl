@@ -1,4 +1,4 @@
-#version 330 core
+#version 430 core
 
 // Refer to the lambert shader files for useful comments
 

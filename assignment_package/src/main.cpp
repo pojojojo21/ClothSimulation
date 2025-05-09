@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 
     // Set OpenGL 3.2 and, optionally, 4-sample multisampling
     QSurfaceFormat format;
-    format.setVersion(3, 2);
+    format.setVersion(4, 3);
     format.setOption(QSurfaceFormat::DeprecatedFunctions, false);
     format.setProfile(QSurfaceFormat::CoreProfile);
     //format.setSamples(4);  // Uncomment for nice antialiasing. Not always supported.
