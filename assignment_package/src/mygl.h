@@ -44,6 +44,7 @@ private:
     int objType;
     Integration integrationType;
     Particle* selectedParticle;
+    float bounceLevel;
 
 public:
     explicit MyGL(QWidget *parent = nullptr);
@@ -58,8 +59,13 @@ public:
     void setDrawType(int index);
     void setObjType(int index);
     void setIntegrationType(int index);
+    void setBounce(float bounce);
+    void setGas(float gas);
+    void setVis(float vis);
+    void setSmoothingRadius(float sR);
     void changeCloth(bool changeW, int width, bool changeH, int height, bool changeS, float spacing);
     void changeBox(bool changeW, int width, bool changeH, int height, bool changeD, int depth, bool changeS, float spacing);
+    void changeFluidSim(bool changeW, int width, bool changeH, int height, bool changeD, int depth, bool changeS, float spacing);
 
 protected:
     void keyPressEvent(QKeyEvent *e);

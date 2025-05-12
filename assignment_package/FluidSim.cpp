@@ -2,13 +2,17 @@
 
 // Constants for SPH
 const float REST_DENSITY = 10.0f;
-const float GAS_CONSTANT = 0.4f; // (e.g., 0.1 to 1.0)
-const float smoothingRadius = 1.0f; // Smoothing radius
 const float MASS = 0.1f;
-const float VISCOSITY = 0.01f; // 0.01 to 0.1 dampens motion
 const float EPSILON = 0.0001f;
 const float BOUND_DAMPING = -0.5f;
 const float TIME_STEP = 0.003f;
+const float MAX_PARTICLES = 65536;
+const float MAX_CELLS = 65536;
+
+struct CellRange {
+    int start;
+    int end;
+};
 
 float poly6Kernel(float r, float h) {
     if (r >= 0 && r <= h) {
@@ -36,11 +40,25 @@ float viscosityLaplacian(float r, float h) {
 }
 
 FluidSim::FluidSim(OpenGLContext* context, int count, glm::vec3 origin, float spacing)
-    : Drawable(context), particleCount(count*count*count), origin(origin), spacing(spacing), initialized(false)
+    : Drawable(context), particleCount(count*count*count), origin(origin), spacing(spacing),
+    initialized(false), gasConstant(0.4), viscosity(0.01), smoothingRadius(1.0), width(count), 
+    height(count), depth(count)
 {
     m_grid = std::make_unique<SpatialGrid>();
 
     initialize(origin, count, count, count, spacing);
+
+}
+
+FluidSim::FluidSim(OpenGLContext* context, int numX, int numY, int numZ, glm::vec3 origin, float spacing,
+    float gasConstant, float viscosity, float smoothingRadius)
+    : Drawable(context), particleCount(numX* numY* numZ), origin(origin), spacing(spacing),
+    initialized(false), gasConstant(gasConstant), viscosity(viscosity), smoothingRadius(smoothingRadius),
+    width(numX), height(numY), depth(numZ)
+{
+    m_grid = std::make_unique<SpatialGrid>();
+
+    initialize(origin, numX, numY, numZ, spacing);
 
 }
 
@@ -67,6 +85,13 @@ void FluidSim::initialize(glm::vec3 origin, int numX, int numY, int numZ, float 
     domainMax = origin + glm::vec3(numX, numY, numZ) * spacing;
 
     m_grid->initialize(domainMin, domainMax, smoothingRadius);
+
+    //QString projectPath = getCurrentPath();
+    //projectPath.append("/assignment_package/glsl/");
+    //QString SPHPath = projectPath + "SPH.comp";
+    //QString SPHforcesPath = projectPath + "SPH_Forces.comp";
+    //sphDensityShader = loadComputeShaderFromFile(SPHPath.toStdString().c_str());
+    //sphForcesShader = loadComputeShaderFromFile(SPHforcesPath.toStdString().c_str());
 }
 
 void FluidSim::initializeAndBufferGeometryData() {
@@ -119,7 +144,11 @@ void FluidSim::update(float deltaTime, Integration index) {
         }
     }
 
-    // 6. Update GPU buffer
+    //uploadParticleDataToGPU();      // Optional: only needed if CPU modifies data
+    //dispatchComputeShader();        // Runs physics on GPU
+    //downloadParticleDataFromGPU();  // Reads results back for rendering (optional)
+
+    // 6. Updates OpenGL position buffer for drawing
     updatePositionBuffer();
 }
 
@@ -171,7 +200,7 @@ void FluidSim::computeDensityPressure() {
             pi.density += pj->mass * poly6Kernel(r, smoothingRadius);
         }
 
-        pi.pressure = GAS_CONSTANT * (pi.density - REST_DENSITY);
+        pi.pressure = gasConstant * (pi.density - REST_DENSITY);
     }
 }
 
@@ -194,11 +223,130 @@ void FluidSim::computeForces() {
                     * spikyGradient(rij, smoothingRadius);
                 
                 // Viscosity force
-                viscosityForce += VISCOSITY * pi.mass *
+                viscosityForce += viscosity * pi.mass *
                     (pj->velocity - pi.velocity) / pj->density *
                     viscosityLaplacian(r, smoothingRadius);
             }
         }
         pi.acceleration = (pressureForce + viscosityForce + gravityForce) / pi.density;
     }
+}
+
+void FluidSim::createComputeBuffers() {
+    glContext->glGenBuffers(1, &particleSSBO);
+    glContext->glBindBuffer(GL_SHADER_STORAGE_BUFFER, particleSSBO);
+    glContext->glBufferData(GL_SHADER_STORAGE_BUFFER, particles.size() * sizeof(GPU_Particle), nullptr, GL_DYNAMIC_DRAW);
+
+    glContext->glGenBuffers(1, &gridSSBO);
+    glContext->glBindBuffer(GL_SHADER_STORAGE_BUFFER, gridSSBO);
+    glContext->glBufferData(GL_SHADER_STORAGE_BUFFER, MAX_PARTICLES * sizeof(int), nullptr, GL_DYNAMIC_DRAW);
+
+    glContext->glGenBuffers(1, &cellRangeSSBO);
+    glContext->glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellRangeSSBO);
+    glContext->glBufferData(GL_SHADER_STORAGE_BUFFER, MAX_CELLS * sizeof(CellRange), nullptr, GL_DYNAMIC_DRAW);
+}
+
+void FluidSim::uploadParticleDataToGPU() {
+    std::vector<GPU_Particle> gpuParticles;
+    for (auto& p : particles) {
+        GPU_Particle gp;
+        gp.position = glm::vec4(p.position, 0.f);
+        gp.velocity = glm::vec4(p.velocity, 0.f);
+        gp.acceleration = glm::vec4(p.acceleration, 0.f);
+        gp.density = p.density;
+        gp.pressure = p.pressure;
+        gp.mass = p.mass;
+        gpuParticles.push_back(gp);
+    }
+
+    glContext->glBindBuffer(GL_SHADER_STORAGE_BUFFER, particleSSBO);
+    glContext->glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, gpuParticles.size() * sizeof(GPU_Particle), gpuParticles.data());
+}
+
+void FluidSim::dispatchComputeShader() {
+
+    glContext->glUseProgram(sphDensityShader);
+    setSPHUniforms(sphDensityShader);
+
+    // Bind SSBOs
+    glContext->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, particleSSBO);
+    glContext->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, gridSSBO);
+    glContext->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, cellRangeSSBO);
+
+    GLuint numGroups = (GLuint)ceil(particles.size() / 128.0f);
+    glContext->glDispatchCompute(numGroups, 1, 1);
+    glContext->glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+    glContext->glUseProgram(sphForcesShader);
+    setSPHUniforms(sphForcesShader);
+    glContext->glDispatchCompute(numGroups, 1, 1);
+    glContext->glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+}
+
+void FluidSim::downloadParticleDataFromGPU() {
+    glContext->glBindBuffer(GL_SHADER_STORAGE_BUFFER, particleSSBO);
+    GPU_Particle* gpuPtr = (GPU_Particle*)glContext->glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+
+    for (int i = 0; i < particles.size(); ++i) {
+        particles[i].position = glm::vec3(gpuPtr[i].position);
+        particles[i].velocity = glm::vec3(gpuPtr[i].velocity);
+        particles[i].acceleration = glm::vec3(gpuPtr[i].acceleration);
+        particles[i].density = gpuPtr[i].density;
+        particles[i].pressure = gpuPtr[i].pressure;
+    }
+
+    glContext->glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+}
+
+GLuint FluidSim::loadComputeShaderFromFile(const std::string& path) {
+    std::ifstream file(path);
+    if (!file.is_open()) {
+        std::cerr << "Failed to open compute shader file: " << path << std::endl;
+        return 0;
+    }
+
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    std::string shaderCode = buffer.str();
+    const char* shaderSource = shaderCode.c_str();
+
+    GLuint shader = glContext->glCreateShader(GL_COMPUTE_SHADER);
+    glContext->glShaderSource(shader, 1, &shaderSource, nullptr);
+    glContext->glCompileShader(shader);
+
+    // Check for compilation errors
+    GLint success;
+    glContext->glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        char log[512];
+        glContext->glGetShaderInfoLog(shader, 512, nullptr, log);
+        std::cerr << "Compute Shader compilation failed:\n" << log << std::endl;
+        return 0;
+    }
+
+    GLuint program = glContext->glCreateProgram();
+    glContext->glAttachShader(program, shader);
+    glContext->glLinkProgram(program);
+    glContext->glDeleteShader(shader);  // no longer needed after linking
+
+    // Check for linking errors
+    glContext->glGetProgramiv(program, GL_LINK_STATUS, &success);
+    if (!success) {
+        char log[512];
+        glContext->glGetProgramInfoLog(program, 512, nullptr, log);
+        std::cerr << "Shader Program linking failed:\n" << log << std::endl;
+        return 0;
+    }
+
+    return program;
+}
+
+void FluidSim::setSPHUniforms(GLuint shader) {
+    glContext->glUseProgram(shader);
+    glContext->glUniform1f(glContext->glGetUniformLocation(shader, "smoothingRadius"), smoothingRadius);
+    glContext->glUniform1f(glContext->glGetUniformLocation(shader, "mass"), MASS);
+    glContext->glUniform1f(glContext->glGetUniformLocation(shader, "restDensity"), REST_DENSITY);
+    glContext->glUniform1f(glContext->glGetUniformLocation(shader, "gasConstant"), gasConstant);
+    glContext->glUniform1f(glContext->glGetUniformLocation(shader, "viscosity"), viscosity);
+    glContext->glUniform1f(glContext->glGetUniformLocation(shader, "dt"), TIME_STEP);
 }

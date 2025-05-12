@@ -19,6 +19,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->Spin_D, &QSpinBox::valueChanged, this, &MainWindow::on_depth_changed);
     connect(ui->Spin_SS, &QDoubleSpinBox::valueChanged, this, &MainWindow::on_spacing_changed);
     connect(ui->integrationTypeSelection, &QComboBox::currentIndexChanged, this, &MainWindow::on_itegration_changed);
+    connect(ui->Spin_BL, &QDoubleSpinBox::valueChanged, this, &MainWindow::on_bounce_changed);
+    connect(ui->Spin_GAS, &QDoubleSpinBox::valueChanged, this, &MainWindow::on_gas_changed);
+    connect(ui->Spin_VIS, &QDoubleSpinBox::valueChanged, this, &MainWindow::on_vis_changed);
+    connect(ui->Spin_SR, &QDoubleSpinBox::valueChanged, this, &MainWindow::on_SR_changed);
 }
 
 MainWindow::~MainWindow()
@@ -65,17 +69,20 @@ void MainWindow::on_width_changed(int width)
 {
     ui->mygl->changeCloth(true, width, 0, 0, 0, 0);
     ui->mygl->changeBox(true, width, 0, 0, 0, 0, 0, 0);
+    ui->mygl->changeFluidSim(true, width, 0, 0, 0, 0, 0, 0);
 }
 
 void MainWindow::on_height_changed(int height)
 {
     ui->mygl->changeCloth(0, 0, true, height, 0, 0);
     ui->mygl->changeBox(0, 0, true, height, 0, 0, 0, 0);
+    ui->mygl->changeFluidSim(0, 0, true, height, 0, 0, 0, 0);
 }
 
 void MainWindow::on_depth_changed(int depth)
 {
     ui->mygl->changeBox(0, 0, 0, 0, true, depth, 0, 0);
+    ui->mygl->changeFluidSim(0, 0, 0, 0, true, depth, 0, 0);
 }
 
 void MainWindow::on_spacing_changed(float spacing)
@@ -87,4 +94,24 @@ void MainWindow::on_spacing_changed(float spacing)
 void MainWindow::on_itegration_changed(int index)
 {
     ui->mygl->setIntegrationType(index);
+}
+
+void MainWindow::on_bounce_changed(float bounce)
+{
+    ui->mygl->setBounce(bounce);
+}
+
+void MainWindow::on_gas_changed(float gas)
+{
+    ui->mygl->setGas(gas);
+}
+
+void MainWindow::on_vis_changed(float vis)
+{
+    ui->mygl->setVis(vis);
+}
+
+void MainWindow::on_SR_changed(float sR)
+{
+    ui->mygl->setSmoothingRadius(sR);
 }

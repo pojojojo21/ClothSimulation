@@ -172,5 +172,11 @@
     <None Include="glsl\lambert.vert.glsl">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="glsl\SPH.comp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="glsl\SPH_Forces.comp">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

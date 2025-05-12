@@ -20,7 +20,7 @@ public:
 
     Cloth(OpenGLContext* mp_context, int w, int h, float spacing, glm::vec3 origin);
 
-    void update(float deltaTime, Integration index);
+    void update(float deltaTime, Integration index, float bounce = 1.0f);
     void initializeAndBufferGeometryData() override;
     void drawParticles(std::vector<glm::vec3>& pos, std::vector<glm::vec3>& nor, std::vector<glm::vec3>& col, std::vector<GLuint>& idx);
     void drawSprings(std::vector<glm::vec3>& pos, std::vector<glm::vec3>& nor, std::vector<glm::vec3>& col, std::vector<GLuint>& idx);

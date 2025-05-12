@@ -47,6 +47,14 @@ public:
     QSpinBox *Spin_D;
     QLabel *Label_Depth;
     QComboBox *integrationTypeSelection;
+    QLabel *Label_BL;
+    QDoubleSpinBox *Spin_BL;
+    QLabel *Label_GAS;
+    QDoubleSpinBox *Spin_GAS;
+    QLabel *Label_VIS;
+    QDoubleSpinBox *Spin_VIS;
+    QLabel *Label_SR;
+    QDoubleSpinBox *Spin_SR;
     QMenuBar *menuBar;
     QMenu *menuFile;
 
@@ -133,10 +141,50 @@ public:
         integrationTypeSelection->addItem(QString());
         integrationTypeSelection->setObjectName("integrationTypeSelection");
         integrationTypeSelection->setGeometry(QRect(930, 100, 72, 24));
+        Label_BL = new QLabel(centralWidget);
+        Label_BL->setObjectName("Label_BL");
+        Label_BL->setGeometry(QRect(667, 260, 81, 20));
+        Spin_BL = new QDoubleSpinBox(centralWidget);
+        Spin_BL->setObjectName("Spin_BL");
+        Spin_BL->setGeometry(QRect(810, 260, 62, 22));
+        Spin_BL->setMinimum(0.100000000000000);
+        Spin_BL->setMaximum(2.000000000000000);
+        Spin_BL->setSingleStep(0.100000000000000);
+        Spin_BL->setValue(1.000000000000000);
+        Label_GAS = new QLabel(centralWidget);
+        Label_GAS->setObjectName("Label_GAS");
+        Label_GAS->setGeometry(QRect(670, 300, 91, 20));
+        Spin_GAS = new QDoubleSpinBox(centralWidget);
+        Spin_GAS->setObjectName("Spin_GAS");
+        Spin_GAS->setGeometry(QRect(810, 300, 62, 22));
+        Spin_GAS->setMinimum(0.100000000000000);
+        Spin_GAS->setMaximum(1.000000000000000);
+        Spin_GAS->setSingleStep(0.100000000000000);
+        Spin_GAS->setValue(0.400000000000000);
+        Label_VIS = new QLabel(centralWidget);
+        Label_VIS->setObjectName("Label_VIS");
+        Label_VIS->setGeometry(QRect(670, 340, 91, 20));
+        Spin_VIS = new QDoubleSpinBox(centralWidget);
+        Spin_VIS->setObjectName("Spin_VIS");
+        Spin_VIS->setGeometry(QRect(810, 340, 62, 22));
+        Spin_VIS->setMinimum(0.010000000000000);
+        Spin_VIS->setMaximum(0.100000000000000);
+        Spin_VIS->setSingleStep(0.010000000000000);
+        Spin_VIS->setValue(0.010000000000000);
+        Label_SR = new QLabel(centralWidget);
+        Label_SR->setObjectName("Label_SR");
+        Label_SR->setGeometry(QRect(670, 380, 121, 20));
+        Spin_SR = new QDoubleSpinBox(centralWidget);
+        Spin_SR->setObjectName("Spin_SR");
+        Spin_SR->setGeometry(QRect(810, 380, 62, 22));
+        Spin_SR->setMinimum(0.100000000000000);
+        Spin_SR->setMaximum(5.000000000000000);
+        Spin_SR->setSingleStep(0.100000000000000);
+        Spin_SR->setValue(1.000000000000000);
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName("menuBar");
-        menuBar->setGeometry(QRect(0, 0, 1057, 21));
+        menuBar->setGeometry(QRect(0, 0, 1057, 24));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName("menuFile");
         MainWindow->setMenuBar(menuBar);
@@ -181,6 +229,10 @@ public:
         integrationTypeSelection->setItemText(1, QCoreApplication::translate("MainWindow", "Implicit Euler", nullptr));
         integrationTypeSelection->setItemText(2, QCoreApplication::translate("MainWindow", "Euler", nullptr));
 
+        Label_BL->setText(QCoreApplication::translate("MainWindow", "Bounce Level", nullptr));
+        Label_GAS->setText(QCoreApplication::translate("MainWindow", "Gas Constant", nullptr));
+        Label_VIS->setText(QCoreApplication::translate("MainWindow", "Viscosity", nullptr));
+        Label_SR->setText(QCoreApplication::translate("MainWindow", "Smoothing Radius", nullptr));
         menuFile->setTitle(QCoreApplication::translate("MainWindow", "File", nullptr));
     } // retranslateUi
 

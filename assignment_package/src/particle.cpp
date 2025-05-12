@@ -12,7 +12,7 @@ void Particle::applyForce(const glm::vec3& force) {
     }
 }
 
-void Particle::update(float deltaTime, Integration type, bool sim) {
+void Particle::update(float deltaTime, Integration type, bool sim, float bounce) {
     switch (type)
     {
     case Integration::EULER:
@@ -32,7 +32,7 @@ void Particle::update(float deltaTime, Integration type, bool sim) {
     {
         // Apply floor collision detection
         float floorHeight = -20.0f;  // Adjust this based on your scene
-        floorCollision(floorHeight);
+        floorCollision(floorHeight, bounce);
     }
 
     acceleration = glm::vec3(0.0f);
@@ -70,12 +70,15 @@ void Particle::verletUpdate(float deltaTime) // better numerical stability
     }
 }
 
-void Particle::floorCollision(float floorHeight)
+void Particle::floorCollision(float floorHeight, float bounceLevel)
 {
     // Apply basic floor collision detection
     if (position.y < floorHeight) {
+
+        float vel = position.y - previousPosition.y;
+
         position.y = floorHeight; // Keep particle above the floor
-        previousPosition.y = floorHeight; // Prevent penetration
+        previousPosition.y = bounceLevel * (position.y + vel); // Bounce particle for verlet (Apply less bounce by dampening)
         velocity.y *= -0.3f;
     }
 }

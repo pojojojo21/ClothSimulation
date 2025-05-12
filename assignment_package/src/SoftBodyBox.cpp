@@ -98,13 +98,13 @@ void SoftBodyBox::initializeAndBufferGeometryData() {
     initialized = true;
 }
 
-void SoftBodyBox::update(float deltaTime, Integration index) {
+void SoftBodyBox::update(float deltaTime, Integration index, float bounce) {
     for (auto& spring : springs) {
         spring.applyForces();
     }
     for (auto& particle : particles) {
         particle.applyForce(glm::vec3(0.f, -9.8f, 0.f)); // Gravity
-        particle.update(deltaTime, index, false);
+        particle.update(deltaTime, index, false, bounce);
     }
 
     // Apply spring constraints multiple times per frame

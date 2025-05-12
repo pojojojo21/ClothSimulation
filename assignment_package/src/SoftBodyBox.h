@@ -12,7 +12,7 @@ public:
     SoftBodyBox(OpenGLContext* mp_context, int w, int h, int d, float spacing, glm::vec3 origin);
 
     void initializeAndBufferGeometryData();
-    void update(float deltaTime, Integration index);
+    void update(float deltaTime, Integration index, float bounce = 1.0f);
     void updatePositionBuffer();
     void resetBox();
     void dropBox();

@@ -259,6 +259,8 @@
   <ItemGroup>
     <None Include="glsl\flat.frag.glsl" />
     <None Include="glsl\flat.vert.glsl" />
+    <None Include="glsl\SPH.comp" />
+    <None Include="glsl\SPH_Forces.comp" />
     <QtRcc Include="glsl.qrc" />
     <None Include="glsl\lambert.frag.glsl" />
     <None Include="glsl\lambert.vert.glsl" />

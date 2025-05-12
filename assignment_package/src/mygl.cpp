@@ -6,20 +6,21 @@
 #include <QKeyEvent>
 
 
-MyGL::MyGL(QWidget *parent)
+MyGL::MyGL(QWidget* parent)
     : OpenGLContext(parent),
-      timer(), currTime(0.),
-      m_geomSquare(this),
-      m_cloth(nullptr),
-      m_box(nullptr),
-      m_fluidSim(nullptr),
-      m_progLambert(this), m_progFlat(this),
-      vao(),
-      m_camera(width(), height()),
-      m_mousePosPrev(),
-      objType(0),
-      integrationType(Integration::VERLET),
-      selectedParticle(nullptr)
+    timer(), currTime(0.),
+    m_geomSquare(this),
+    m_cloth(nullptr),
+    m_box(nullptr),
+    m_fluidSim(nullptr),
+    m_progLambert(this), m_progFlat(this),
+    vao(),
+    m_camera(width(), height()),
+    m_mousePosPrev(),
+    objType(0),
+    integrationType(Integration::VERLET),
+    selectedParticle(nullptr),
+    bounceLevel(1.0)
 {
     setFocusPolicy(Qt::StrongFocus);
 
@@ -137,7 +138,7 @@ void MyGL::paintGL()
     switch (objType)
     {
     case 0: // Update cloth simulation
-        m_cloth->update(1.0f / 60.0f, integrationType); // Assuming 60 FPS for deltaTime
+        m_cloth->update(1.0f / 60.0f, integrationType, bounceLevel); // Assuming 60 FPS for deltaTime
         m_cloth->updatePositionBuffer(); // Update position buffer with the latest particle positions
 
         // Draw the cloth
@@ -156,7 +157,7 @@ void MyGL::paintGL()
 
         break;
     case 1: // Update box simulation
-        m_box->update(1.0f / 60.0f, integrationType); // Assuming 60 FPS for deltaTime
+        m_box->update(1.0f / 60.0f, integrationType, bounceLevel); // Assuming 60 FPS for deltaTime
         m_box->updatePositionBuffer(); // Update position buffer with the latest particle positions
 
         // Draw the cloth
@@ -309,6 +310,26 @@ void MyGL::setIntegrationType(int index)
     }
 }
 
+void MyGL::setBounce(float bounce)
+{
+    bounceLevel = bounce;
+}
+
+void MyGL::setGas(float gas)
+{
+    m_fluidSim->gasConstant = gas;
+}
+
+void MyGL::setVis(float vis)
+{
+    m_fluidSim->viscosity = vis;
+}
+
+void MyGL::setSmoothingRadius(float sR)
+{
+    m_fluidSim->smoothingRadius = sR;
+}
+
 void MyGL::changeCloth(bool changeW, int width, bool changeH, int height, bool changeS, float spacing)
 {
     int w = m_cloth->width;
@@ -360,6 +381,39 @@ void MyGL::changeBox(bool changeW, int width, bool changeH, int height, bool cha
     m_box = std::make_unique<SoftBodyBox>(this, w, h, d, s, glm::vec3(0, 0, 0));
     m_box->drawType = dT;
     this->m_box->initializeAndBufferGeometryData();
+}
+
+void MyGL::changeFluidSim(bool changeW, int width, bool changeH, int height, bool changeD, int depth, bool changeS, float spacing)
+{
+    int w = m_fluidSim->width;
+    int h = m_fluidSim->height;
+    int d = m_fluidSim->depth;
+    float s = m_fluidSim->spacing;
+    int gas = m_fluidSim->gasConstant;
+    int vis = m_fluidSim->viscosity;
+    int sR = m_fluidSim->smoothingRadius;
+
+    if (changeW)
+    {
+        w = width;
+    }
+    if (changeH)
+    {
+        h = height;
+    }
+    if (changeD)
+    {
+        d = depth;
+    }
+    if (changeS)
+    {
+        s = spacing;
+    }
+
+    m_fluidSim = std::make_unique<FluidSim>(this, w, h, d, glm::vec3(0, 0, 0), s, 
+        gas, vis, sR);
+
+    this->m_fluidSim->initializeAndBufferGeometryData();
 }
 
 void MyGL::screenToWorldRay(int mouseX, int mouseY, glm::vec3& rayOrigin, glm::vec3& rayDirection) {

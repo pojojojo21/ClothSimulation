@@ -30,6 +30,10 @@ private slots:
     void on_depth_changed(int depth);
     void on_spacing_changed(float spacing);
     void on_itegration_changed(int index);
+    void on_bounce_changed(float bounce);
+    void on_gas_changed(float gas);
+    void on_vis_changed(float vis);
+    void on_SR_changed(float sR);
 
 private:
     Ui::MainWindow *ui;
